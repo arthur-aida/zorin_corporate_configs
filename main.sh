@@ -1,0 +1,687 @@
+#!/bin/bash
+# main.sh - Script principal de customização
+# =============================================================================
+#  - Proteção contra interrupção abrupta: módulos executados com set +e para
+#    não abortarem o main.sh, falhas capturadas em array FAILED_MODULES.
+#  - Lógica de --skip-errors alterada para sempre registrar falhas, mas
+#    encerrar com erro apenas se a flag NÃO estiver ativa.
+#  - Download e cache (common.sh) tratados separadamente (não afetam este script).
+#
+# Uma falha de módulo com código de saída ≠ 0 deve ser investigada para que a
+# proposta co conjunto de scripts prospere. Os erros são propagados e o uso do
+# --skip-errors pode ajudar no debug, se todos os módulos possuem set -euo pipefail.
+# =============================================================================
+set -eu
+
+# -----------------------------------------------------------------------------
+# FUNÇÃO: VERIFICA E INSTALA BASH SE NECESSÁRIO
+# -----------------------------------------------------------------------------
+check_and_install_bash() {
+    if [ -x /bin/bash ] || [ -x /usr/bin/bash ]; then
+        [ -x /usr/bin/bash ] && [ ! -x /bin/bash ] && ln -sf /usr/bin/bash /bin/bash
+        return 0
+    fi
+    echo "ERRO: /bin/bash nao encontrado. Tentando instalar..." >&2
+    if command -v apt-get >/dev/null 2>&1; then
+        apt-get update -qq
+        apt-get install -y -qq bash yad
+    else
+        echo "ERRO: Gerenciador de pacotes nao suportado. Abortando." >&2
+        exit 1
+    fi
+    if [ -x /bin/bash ] || [ -x /usr/bin/bash ]; then
+        [ -x /usr/bin/bash ] && [ ! -x /bin/bash ] && ln -sf /usr/bin/bash /bin/bash
+        echo "Bash instalado com sucesso. Reiniciando o script..." >&2
+        return 0
+    else
+        echo "ERRO: Falha na instalacao do bash." >&2
+        exit 1
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# FUNÇÃO: MOSTRA AJUDA
+# -----------------------------------------------------------------------------
+show_help() {
+    cat << EOF
+Uso: $0 <1|2|3|9> [OPÇOES]
+
+PERFIS:
+  1 - Home Office / Escritorio movel
+  2 - Corporativo
+  3 - Saude (clinicas, hospital, UBS, etc)
+  9 - Configurar o ambiente de deploy com servidor de caches e KVM (setup-server-KVM-nfs-acng.sh)
+
+OPÇOES:
+  --skip-errors    Continua mesmo se algum modulo falhar (não encerra com erro)
+  --no-preflight   Pula a verificacao de pre-requisitos
+  --no-apt-cacher  Nao tenta ativar APT-Cacher-NG
+  --no-nfs         Nao tenta montar NFS
+  --help, -h       Mostra esta ajuda
+
+REDES KVM SUPORTADAS:
+  - 192.168.122.0/24 (padrao libvirt)
+  - 192.168.123.0/24 (secundaria)
+  O servidor NFS deve estar no IP .1 da rede ativa
+  PORTA PADRAO NFS NO ARQUIVO DO PROFILE: $NFS_PORT
+
+EXEMPLOS:
+  $0 1
+  $0 2 --skip-errors
+  $0 3
+  $0 9
+EOF
+}
+
+# -----------------------------------------------------------------------------
+# VERIFICAÇÃO INICIAL DO BASH
+# -----------------------------------------------------------------------------
+check_and_install_bash
+if [ -z "${BASH_VERSION:-}" ]; then
+    exec /bin/bash "$0" "$@"
+fi
+
+# =============================================================================
+# CONFIGURAÇÕES BASH
+# =============================================================================
+set -euo pipefail
+SCRIPT_DIR="/etc/customization"
+LOG_DIR="/var/log/customization"
+PERSISTENT_LOG_DIR="/var/log/customization-persist"
+BG_PIDS=()
+BG_MODULES=()
+
+mkdir -p "$LOG_DIR" "$PERSISTENT_LOG_DIR"
+
+TMPFS_MOUNTED=false
+if mountpoint -q "$LOG_DIR"; then
+    TMPFS_MOUNTED=true
+elif mount -t tmpfs -o size=50M,mode=0755 tmpfs "$LOG_DIR" 2>/dev/null; then
+    TMPFS_MOUNTED=true
+else
+    echo "AVISO: Não foi possível montar tmpfs em $LOG_DIR. Usando disco diretamente." >&2
+    LOG_DIR="$PERSISTENT_LOG_DIR"
+fi
+
+FAILED_MODULES=()  # array global para módulos que falharem
+
+cleanup_logs() {
+    local exit_code=$?
+    local REAL_USER="${SUDO_USER:-}"
+    if [ -z "$REAL_USER" ]; then
+        REAL_USER=$(grep ":1000:" /etc/passwd | cut -d: -f1)
+    fi
+
+    # Copia logs para diretório persistente antes de desmontar tmpfs
+    if [ -d "$LOG_DIR" ] && [ "$LOG_DIR" != "$PERSISTENT_LOG_DIR" ]; then
+        mkdir -p "$PERSISTENT_LOG_DIR"
+        cp -a "$LOG_DIR/." "$PERSISTENT_LOG_DIR/" 2>/dev/null || true
+        # Executa o script de auditoria se ainda não foi executado (em caso de interrupção)
+        #chmod +x /etc/customization/scripts/generate_cache_audit.sh
+        #if [ ! -f "${PERSISTENT_LOG_DIR}/cache_audit.log" ]; then
+        #    if [ -x /etc/customization/scripts/generate_cache_audit.sh ]; then
+        #        bash /etc/customization/scripts/generate_cache_audit.sh "$PERSISTENT_LOG_DIR" || true
+        #    fi
+        #fi
+        umount -l "$LOG_DIR" 2>/dev/null || true
+    fi
+    
+    exit $exit_code
+}
+trap cleanup_logs EXIT INT TERM
+
+# Carrega funções comuns
+if [ -f "$SCRIPT_DIR/utils/common.sh" ]; then
+    source "$SCRIPT_DIR/utils/common.sh"
+else
+    echo "ERRO: $SCRIPT_DIR/utils/common.sh nao encontrado"
+    exit 1
+fi
+
+# =============================================================================
+# PROCESSAMENTO DE ARGUMENTOS
+# =============================================================================
+PERFIL=""
+SKIP_ERRORS=false
+NO_PREFLIGHT=false
+NO_APT_CACHER=false
+NO_NFS=false
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --skip-errors)    SKIP_ERRORS=true; shift ;;
+        --no-preflight)   NO_PREFLIGHT=true; shift ;;
+        --no-apt-cacher)  NO_APT_CACHER=true; shift ;;
+        --no-nfs)         NO_NFS=true; shift ;;
+        --help|-h)        show_help; exit 0 ;;
+        [1239])           PERFIL="$1"; shift ;;
+        *)                echo "ERRO: Argumento invalido: $1" >&2; show_help; exit 1 ;;
+    esac
+done
+
+# =============================================================================
+# PERFIL 9: EXECUTA O SCRIPT DO SERVIDOR E SAI
+# =============================================================================
+if [ "$PERFIL" = "9" ]; then
+    SETUP_SERVER_SCRIPT="$SCRIPT_DIR/scripts/setup-server-KVM-nfs-acng.sh"
+    if [ -f "$SETUP_SERVER_SCRIPT" ]; then
+        log_info "Executando configuração do servidor de cache e KVM..."
+        FORCE_FLATPAK_CACHE=1 bash "$SETUP_SERVER_SCRIPT"
+        log_info "Configuração do servidor concluída. Reinicie se necessário."
+    else
+        echo "ERRO: Script de configuração do servidor não encontrado: $SETUP_SERVER_SCRIPT" >&2
+        exit 1
+    fi
+    exit 0
+fi
+
+if [ -z "$PERFIL" ]; then
+    echo "ERRO: Perfil nao especificado" >&2
+    show_help
+    exit 1
+fi
+
+# =============================================================================
+# INÍCIO DA EXECUÇÃO (PERFIS 1, 2, 3)
+# =============================================================================
+load_profile "$PERFIL"
+
+# <<< NOVO: Sinaliza que o ambiente foi carregado pelo main.sh (variáveis completas)
+export MAIN_ACTIVE=1
+
+export APTCACHER CACHEPORT NFSSERVERER NFSPORT
+export DNS site sigh
+export ENABLE_BACKUP ENABLE_FLATPAK_CACHE ENABLE_HEALTH_APPS
+export hostsallow0 hostsallow1 hostsallow2 hostsallow3 hostsdeny ntpserver
+
+systemctl stop packagekit unattended-upgrades 2>/dev/null || true
+systemctl stop apt-daily.timer apt-daily-upgrade.timer 2>/dev/null || true
+systemctl disable apt-daily.timer apt-daily-upgrade.timer 2>/dev/null || true
+pkill -f apt.systemd.daily 2>/dev/null || true
+
+wait_for_apt_unlock
+update_apt_keys_no_proxy
+log_info "========================================="
+log_info "Iniciando customizacao com perfil $PERFIL"
+log_info "Skip errors: $SKIP_ERRORS"
+log_info "Porta NFS: $NFS_PORT"
+log_info "========================================="
+
+# =============================================================================
+# PASSO 0: PREFLIGHT
+# =============================================================================
+log_info ""
+log_info "========================================="
+log_info "PASSO 0: Verificacao de pre-requisitos"
+log_info "========================================="
+
+if [ "$NO_PREFLIGHT" = false ]; then
+    run_preflight "$PERFIL"
+else
+    log_info "--no-preflight informado - pulando verificacao"
+fi
+
+echo 'Acquire::ForceIPv4 "true";' > /etc/apt/apt.conf.d/99force-ipv4
+
+# =============================================================================
+# FUNÇÕES DE EXECUÇÃO DE MÓDULOS (COM TRATAMENTO DE ERROS)
+# =============================================================================
+run_script() {
+    local script_name="$1"
+    local script_path="$2"
+    local log_file="$LOG_DIR/${script_name}.log"
+
+    if [ ! -f "$script_path" ]; then
+        log_info "AVISO: $script_name nao encontrado em $script_path"
+        return 0
+    fi
+
+    log_info "Executando: $script_name"
+
+    # Desabilita set -e temporariamente para capturar o retorno sem interromper o main.sh
+    set +e
+    bash "$script_path" >> "$log_file" 2>&1
+    local ret=$?
+    set -e
+
+    if [ $ret -ne 0 ]; then
+        log_error "MÓDULO $script_name FALHOU (código $ret)"
+        FAILED_MODULES+=("$script_name")
+        # Se SKIP_ERRORS for false, o script principal NÃO será interrompido aqui;
+        # o controle será feito no final com base no array FAILED_MODULES.
+    fi
+
+    log_info "$script_name concluido (código $ret)"
+    return 0
+}
+
+run_module() {
+    local module_name="$1"
+    run_script "$module_name" "$SCRIPT_DIR/modules/${module_name}.sh"
+}
+
+BG_PIDS=()
+run_module_bg() {
+    local module_name="$1"
+    local log_file="$LOG_DIR/${module_name}.log"
+    if [ -f "$SCRIPT_DIR/modules/${module_name}.sh" ]; then
+        log_info "Executando (bg): $module_name"
+        bash "$SCRIPT_DIR/modules/${module_name}.sh" >> "$log_file" 2>&1 &
+        local pid=$!
+        BG_PIDS+=("$pid")
+        BG_MODULES+=("$module_name")
+    else
+        log_info "AVISO: $module_name.sh nao encontrado"
+    fi
+}
+
+# =============================================================================
+# FUNÇÃO: VERIFICA CACHE FLATPAK E SOLICITA RECRIAÇÃO AO SERVIDOR
+# =============================================================================
+rebuild_flatpak_cache_if_empty() {
+    local SERVER_IP="$1"
+    local NFS_FLATPAK_DIR="$2"
+    local REBUILD_PORT=9876
+
+    # Caminho real do repositório ostree (estrutura do create-usb)
+    local OSTREE_REPO="$NFS_FLATPAK_DIR/.ostree/repo"
+
+    # Cache já populado → nada a fazer
+    if [ -d "$OSTREE_REPO/objects" ] && [ "$(ls -A "$OSTREE_REPO/objects" 2>/dev/null)" ]; then
+        log_info "Cache Flatpak já populado em $OSTREE_REPO"
+        return 0
+    fi
+
+    log_warning "Cache Flatpak vazio. Acionando recriação via trigger TCP..."
+
+    # Verifica se o servidor responde na porta de rebuild
+    if ! nc -w 2 -z "$SERVER_IP" "$REBUILD_PORT"; then
+        log_error "Servidor $SERVER_IP:$REBUILD_PORT não está acessível."
+        return 1
+    fi
+
+    # Envia um byte qualquer para disparar o rebuild (a conexão em si já inicia o script)
+    echo "rebuild" | nc -w 5 "$SERVER_IP" "$REBUILD_PORT" > /dev/null 2>&1
+    local ret=$?
+
+    if [ $ret -eq 0 ]; then
+        log_success "Gatilho enviado. O cache Flatpak está sendo recriado no servidor."
+    else
+        log_error "Falha ao comunicar com o trigger de rebuild."
+        return 1
+    fi
+}
+
+# =============================================================================
+# FUNÇÃO: MONTA NFS
+# =============================================================================
+mount_nfs_direct() {
+    local NFS_PORT_ACTUAL="${NFSPORT:-$NFS_PORT}"
+    log_info "Montando NFS para cache Flatpak (porta $NFS_PORT_ACTUAL)..."
+
+    # NFS_SERVER é global para uso posterior no rebuild_flatpak_cache_if_empty
+    NFS_SERVER=""
+    if [ -n "${NFS_SERVER_SELECTED:-}" ]; then
+        NFS_SERVER="$NFS_SERVER_SELECTED"
+        log_info "Usando servidor NFS selecionado no preflight: $NFS_SERVER"
+    else
+        NFS_SERVER=$(get_nfs_server)
+        log_info "Servidor NFS detectado agora: $NFS_SERVER"
+    fi
+
+    if [ -z "$NFS_SERVER" ]; then
+        log_warning "Não foi possível determinar servidor NFS. Abortando montagem."
+        return 1
+    fi
+
+    if nc -w 2 -v "$NFS_SERVER" "$NFS_PORT_ACTUAL" < /dev/null 2>/dev/null; then
+        log_info "Servidor NFS acessível"
+    else
+        log_warning "Servidor NFS $NFS_SERVER:$NFS_PORT_ACTUAL inacessível"
+        return 1
+    fi
+
+    log_info "Montando Flatpak cache..."
+    mount_nfs_if_available "$NFS_SERVER" "/mnt" "/partimag/flatpakcache/" "Flatpak cache" "$NFS_PORT_ACTUAL"
+
+    log_info "Montando repositório administrativo..."
+    mount_nfs_if_available "$NFS_SERVER" "/tmp/cache" "/partimag/cache/" "Repositório admin" "$NFS_PORT_ACTUAL"
+
+    if mountpoint -q /mnt && [ -d /mnt/.ostree/repo ]; then
+        log_info "Configurando Flatpak para usar cache NFS..."
+        flatpak remote-modify --collection-id=org.flathub.Stable flathub 2>/dev/null || true
+        log_info "Flatpak configurado com cache em /mnt/.ostree/repo"
+    else
+        log_info "Cache Flatpak NFS não encontrado em /mnt/.ostree/repo"
+    fi
+
+    export NFS_MOUNTED_BY_MAIN=true
+    return 0
+}
+
+# =============================================================================
+# PASSO 1: SINCRONIZA SCRIPTS
+# =============================================================================
+log_info ""
+log_info "========================================="
+log_info "PASSO 1: Sincronizando scripts originais"
+log_info "========================================="
+run_module "01-sync-scripts"
+
+# =============================================================================
+# PASSO 2: GESTÃO DE CACHE (CORRIGIDO: só atua se APTCACHER definido)
+# =============================================================================
+log_info ""
+log_info "========================================="
+log_info "PASSO 2: Verificando infraestrutura de cache..."
+log_info "========================================="
+
+if [ -n "${APTCACHER:-}" ]; then
+    # Perfil define explicitamente um proxy APT → tentar usar
+    if bash "/etc/acngonoff.sh"; then
+        log_info "Infraestrutura de cache detectada. Aplicando Mapeamento Direto..."
+        [ -f /tmp/acng_env ] && source /tmp/acng_env
+        export ACTUAL_PROXY_URL="$PROXY_URL"
+        export PROXY_HOST_PORT=$(echo "$ACTUAL_PROXY_URL" | sed 's|http://||')
+        bash "$SCRIPT_DIR/scripts/convert-sources-to-proxy.sh"
+    else
+        log_info "Proxy do perfil inacessível. Seguindo sem cache."
+        if [ -f "/etc/apt/sources.list.d/backup_conversion/.backup_original_feito" ]; then
+            log_info "Restaurando fontes originais..."
+            bash "$SCRIPT_DIR/scripts/restore-sources-from-backup.sh"
+        else
+            log_info "Nenhum backup encontrado. Fontes APT mantidas sem alterações."
+        fi
+    fi
+else
+    log_info "Perfil não define APTCACHER – ambiente sem cache."
+    # Se existir backup de uma conversão anterior, restaura os fontes originais
+    if [ -f "/etc/apt/sources.list.d/backup_conversion/.backup_original_feito" ]; then
+        log_info "Restaurando fontes originais..."
+        bash "$SCRIPT_DIR/scripts/restore-sources-from-backup.sh"
+    else
+        log_info "Nenhum backup encontrado. Fontes APT mantidas sem alterações."
+    fi
+fi
+
+# =============================================================================
+# PASSO 3: DEPENDÊNCIAS MÍNIMAS
+# =============================================================================
+log_info ""
+log_info "========================================="
+log_info "PASSO 3: Instalando dependências NFS e Flatpak"
+log_info "========================================="
+run_module "00-dependencies"
+
+# =============================================================================
+# PASSO 4: MONTAGEM NFS (CORRIGIDO: só se NFSSERVERER estiver definido)
+# =============================================================================
+log_info ""
+log_info "========================================="
+log_info "PASSO 4: Montando NFS e verificando cache Flatpak"
+log_info "========================================="
+
+NFS_MOUNTED=false
+if [ "$NO_NFS" = false ] && [ -n "${NFSSERVERER:-}" ]; then
+    if mount_nfs_direct; then
+        NFS_MOUNTED=true
+        log_info "NFS montado com sucesso"
+
+        # >>> INTEGRAÇÃO: Verifica e recria cache Flatpak se necessário
+        rebuild_flatpak_cache_if_empty "$NFS_SERVER" "/mnt"
+        # <<<
+
+        log_info ""
+        log_info "Verificando montagens:"
+        if mountpoint -q /mnt; then
+            log_info "   /mnt: $(df -h /mnt | tail -1)"
+        else
+            log_info "   /mnt: Nao montado"
+        fi
+        if mountpoint -q /tmp/cache; then
+            log_info "   /tmp/cache: $(df -h /tmp/cache | tail -1)"
+        else
+            log_info "   /tmp/cache: Nao montado"
+        fi
+    else
+        log_info "Falha na montagem NFS - continuando sem cache"
+    fi
+else
+    if [ -z "${NFSSERVERER:-}" ]; then
+        log_info "Perfil não define NFSSERVERER – pulando montagem NFS."
+    else
+        log_info "--no-nfs informado - pulando montagem"
+    fi
+fi
+
+# =============================================================================
+# PASSO 5: INSTALAÇÃO MASSIVA DE PACOTES APT
+# =============================================================================
+log_info ""
+log_info "========================================="
+log_info "PASSO 5: Instalacao massiva de pacotes APT"
+log_info "========================================="
+run_module "02-bulk-packages"
+
+# =============================================================================
+# PASSO 6: CONFIGURAÇÕES BÁSICAS (paralelo)
+# =============================================================================
+log_info ""
+log_info "========================================="
+log_info "PASSO 6: Configuracoes basicas (paralelo)"
+log_info "========================================="
+
+for module in 03-certificates 04-browsers 06-icp-user-certs 07-kaspersky; do
+    if [ -f "$SCRIPT_DIR/modules/${module}.sh" ]; then
+        run_module_bg "$module"
+    fi
+done
+for ((i=0; i<${#BG_PIDS[@]}; i++)); do
+    pid=${BG_PIDS[$i]}
+    mod_name=${BG_MODULES[$i]}
+    wait "$pid"
+    ret=$?
+    if [ $ret -ne 0 ]; then
+        log_error "Módulo em background $mod_name falhou (código $ret)"
+        FAILED_MODULES+=("$mod_name")
+    fi
+done
+BG_PIDS=()
+BG_MODULES=()
+
+# =============================================================================
+# PASSO 7: MÓDULOS APT (sequencial)
+# =============================================================================
+log_info ""
+log_info "========================================="
+log_info "PASSO 7: Modulos que usam APT (sequencial)"
+log_info "========================================="
+for module in 05-tokens 08-wine 09-signers 10-backup; do
+    run_module "$module"
+done
+
+# Reaplica conversão para proxy **apenas se APTCACHER foi definido e o proxy está ativo**
+if [ -n "${APTCACHER:-}" ] && [ -f "/etc/acngonoff.sh" ]; then
+    if bash "/etc/acngonoff.sh"; then
+        log_info "Reaplicando Mapeamento Direto a todas as fontes..."
+        chmod +x /etc/customization/scripts/convert-sources-to-proxy.sh
+        /etc/customization/scripts/convert-sources-to-proxy.sh
+    fi
+fi
+
+# =============================================================================
+# PASSO 8: FLATPAK E DESKTOP (paralelo)
+# =============================================================================
+log_info ""
+log_info "========================================="
+log_info "PASSO 8: Flatpak e configuracoes de desktop (paralelo)"
+log_info "========================================="
+for module in 11-flatpak-cache 12-desktop-config 13-desktop-config-user; do
+    run_module_bg "$module"
+done
+for ((i=0; i<${#BG_PIDS[@]}; i++)); do
+    pid=${BG_PIDS[$i]}
+    mod_name=${BG_MODULES[$i]}
+    wait "$pid"
+    ret=$?
+    if [ $ret -ne 0 ]; then
+        log_error "Módulo em background $mod_name falhou (código $ret)"
+        FAILED_MODULES+=("$mod_name")
+    fi
+done
+BG_PIDS=()
+BG_MODULES=()
+
+# =============================================================================
+# PASSO 9: SEGURANÇA E FINALIZAÇÃO (paralelo)
+# =============================================================================
+log_info ""
+log_info "========================================="
+log_info "PASSO 9: Seguranca e finalizacao (paralelo)"
+log_info "========================================="
+for module in 14-security 15-kvm-menu; do
+    run_module_bg "$module"
+done
+for ((i=0; i<${#BG_PIDS[@]}; i++)); do
+    pid=${BG_PIDS[$i]}
+    mod_name=${BG_MODULES[$i]}
+    wait "$pid"
+    ret=$?
+    if [ $ret -ne 0 ]; then
+        log_error "Módulo em background $mod_name falhou (código $ret)"
+        FAILED_MODULES+=("$mod_name")
+    fi
+done
+BG_PIDS=()
+BG_MODULES=()
+
+# =============================================================================
+# PASSO 10: ATUALIZAÇÃO FINAL E LIMPEZA
+# =============================================================================
+log_info ""
+log_info "========================================="
+log_info "PASSO 10: Limpeza pos-instalacao"
+log_info "========================================="
+
+if [ -f /var/log/customization/.sources_converted_to_http ]; then
+    rm -f /var/log/customization/.sources_converted_to_http
+    log_info "Sentinel de conversão removido"
+fi
+
+log_info "Realizando limpeza de pacotes..."
+{
+    wait_for_apt_unlock
+    echo "=== Início da limpeza automática - $(date) ==="
+    apt full-upgrade -y  -qq 2>&1
+    flatpak update -y --noninteractive  2>&1
+    apt-get autoremove -y  -qq 2>&1
+    apt-get clean  -qq 2>&1
+    echo "=== Fim da limpeza - $(date) ==="
+} > "${LOG_DIR}/cleanup.log" 2>&1
+log_info "Limpeza de pacotes concluída."
+
+log_info "Verificando necessidade de restauração de fontes..."
+if [ -f "/etc/apt/sources.list.d/backup_conversion/.backup_original_feito" ]; then
+    log_info "Restaurando fontes originais..."
+    bash "$SCRIPT_DIR/scripts/restore-sources-from-backup.sh"
+else
+    log_info "Nenhum backup encontrado. Fontes mantidas."
+fi
+
+if [ -f /etc/apt/apt.conf.d/00aptproxy ]; then
+    log_info "Removendo proxy APT..."
+    rm -f /etc/apt/apt.conf.d/00aptproxy
+    log_info "Proxy APT removido"
+fi
+
+# Restaura repositórios desabilitados
+DISABLED_BACKUP_DIR="/etc/apt/sources.list.d/disabled_repos_backup"
+if [ -d "$DISABLED_BACKUP_DIR" ] && [ "$(ls -A "$DISABLED_BACKUP_DIR" 2>/dev/null)" ]; then
+    log_info "Restaurando repositórios temporariamente desabilitados..."
+    mv "$DISABLED_BACKUP_DIR"/* "$SOURCES_DIR"/ 2>/dev/null || true
+    rmdir "$DISABLED_BACKUP_DIR" 2>/dev/null || true
+    log_info "Repositórios desabilitados restaurados."
+fi
+
+if [ -f "$SCRIPT_DIR/utils/fix-sources-list.sh" ]; then
+    run_script "fix-sources-list" "$SCRIPT_DIR/utils/fix-sources-list.sh"
+fi
+if [ "$(grep ^ID= /etc/os-release | cut -d= -f2)" = "linuxmint" ]; then
+    chmod 644 /etc/apt/sources.list
+    chown root:root /etc/apt/sources.list
+fi
+
+# =============================================================================
+# RELATÓRIO FINAL DE FALHAS
+# =============================================================================
+if [ ${#FAILED_MODULES[@]} -gt 0 ]; then
+    log_error "========================================="
+    log_error "ATENÇÃO: Os seguintes módulos falharam:"
+    for m in "${FAILED_MODULES[@]}"; do
+        log_error "  - $m"
+    done
+    log_error "Consulte os logs em: $PERSISTENT_LOG_DIR/"
+    log_error "========================================="
+    if [ "$SKIP_ERRORS" = false ]; then
+        log_error "Abortando com código de saída 1 devido às falhas."
+        exit 1
+    else
+        log_info "Prosseguindo porque --skip-errors está ativo."
+    fi
+fi
+
+# =============================================================================
+# CONCLUSÃO
+# =============================================================================
+systemctl enable apt-daily.timer apt-daily-upgrade.timer 2>/dev/null || true
+systemctl start apt-daily.timer 2>/dev/null || true
+systemctl start packagekit unattended-upgrades 2>/dev/null || true
+
+log_info ""
+log_info "========================================="
+log_info "CUSTOMIZACAO CONCLUIDA"
+log_info "========================================="
+log_info "Resumo da execucao:"
+log_info "  - Perfil: $PERFIL"
+log_info "  - NFS montado: $([ "$NFS_MOUNTED" = true ] && echo "sim" || echo "nao")"
+log_info "  - APT-Cacher-NG: $([ -f /etc/apt/apt.conf.d/00aptproxy ] && echo "ativo" || echo "inativo")"
+log_info "  - Porta NFS utilizada: $NFS_PORT"
+log_info "  - Módulos com falha: ${#FAILED_MODULES[@]}"
+log_info ""
+log_info "Logs em: $PERSISTENT_LOG_DIR/"
+log_info ""
+log_info "Recomendacoes:"
+log_info "  1. Reinicie o sistema para aplicar todas as configuracoes"
+log_info "  2. Verifique os logs em caso de erros"
+log_info "========================================="
+
+# ---------------------------------------------------------------------------
+# LOGS PERMANENTES
+# ---------------------------------------------------------------------------
+if [ "$LOG_DIR" != "$PERSISTENT_LOG_DIR" ] && mountpoint -q "$LOG_DIR" 2>/dev/null; then
+    mkdir -p "$PERSISTENT_LOG_DIR"
+    cp -a "$LOG_DIR/." "$PERSISTENT_LOG_DIR/" 2>/dev/null || true
+fi
+
+# <<< NOVO: Persistência do perfil ativo para uso independente (cron)
+cat > /etc/customization/active-profile.env <<EOF
+export APTCACHER="${APTCACHER:-}"
+export CACHEPORT="${CACHEPORT:-}"
+export NFSSERVERER="${NFSSERVERER:-}"
+export NFSPORT="${NFSPORT:-}"
+export DNS="${DNS:-}"
+export site="${site:-}"
+export sigh="${sigh:-}"
+export ENABLE_BACKUP="${ENABLE_BACKUP:-}"
+export ENABLE_FLATPAK_CACHE="${ENABLE_FLATPAK_CACHE:-}"
+export ENABLE_HEALTH_APPS="${ENABLE_HEALTH_APPS:-}"
+export hostsallow0="${hostsallow0:-}"
+export hostsallow1="${hostsallow1:-}"
+export hostsallow2="${hostsallow2:-}"
+export hostsallow3="${hostsallow3:-}"
+export hostsdeny="${hostsdeny:-}"
+export ntpserver="${ntpserver:-}"
+EOF
+chmod 644 /etc/customization/active-profile.env
+
+exit 0
