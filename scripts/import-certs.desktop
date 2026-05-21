@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Configurador de Certificados ICP-Brasil
+Exec=/usr/bin/bash -x ~/.local/bin/import-icp-brasil.sh 2>&1 | tee -a ~/.local/bin/log_sessao_import-icp-brasil.txt
+Icon=utilities-terminal
+Terminal=false
+X-GNOME-Autostart-enabled=true

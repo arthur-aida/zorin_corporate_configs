@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Instalador de Virtualização KVM
+Comment=Instala KVM/QEMU e ferramentas de virtualização (exige administrador e reboot)
+Exec=sudo /usr/local/bin/install-kvm.sh
+Icon=computer
+Terminal=true
+Type=Application
+Categories=System;Settings;
+StartupNotify=true
