@@ -44,4 +44,4 @@ SOFTWARE.
 
 9-O comando acima realiza a customização conforme a documentação e copia o log para persistencia e auditoria.  
 
-10-Os comandos dentro de < > devem ser digitados ou copido e colados no terminal.
+10-Os comandos dentro de < > devem ser digitados ou copiados e colados no terminal.
