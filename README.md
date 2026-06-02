@@ -24,3 +24,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ==================LEIA A OS DOCUMENTOS DA PASTA DOCS========================
+Abra o terminal e digite <cd /tmp/>. Faça o download com:
+wget https://github.com/arthur-aida/zorin_corporate_configs/archive/refs/heads/main.zip -O /tmp/customization.zip
+e descompate-o . Copie o
