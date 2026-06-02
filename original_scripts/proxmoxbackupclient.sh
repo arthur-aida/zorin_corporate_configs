@@ -2,6 +2,7 @@
 # Script: proxmoxbackupclient.sh (módulo 10-backup)
 # Descrição: Instala o cliente Proxmox Backup (proxmox-backup-client) com suporte a cache NFS e conversão de fontes para proxy.
 # Compatível com Ubuntu 20.04 (Focal), 22.04 (Jammy), 24.04 (Noble) e derivados (Linux Mint, Zorin OS, etc.)
+
 source /etc/customization/utils/common.sh
 set -e
 

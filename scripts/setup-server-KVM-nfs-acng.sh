@@ -9,7 +9,7 @@
 # NFSSERVERER="192.168.122.1", - 192.168.3.3 OU O IP DO SERVIDOR NFS
 # NFSPORT="2049"
 # =============================================================================
-# (POSTERIORMENTE PREPARADO PARA INSTALAR E PROVER CACHES PARA UMA REDE LOCAL)
+#         (PREPARADO PARA INSTALAR E PROVER CACHES PARA UMA REDE LOCAL)
 # =============================================================================
 
 set -euo pipefail
@@ -41,7 +41,6 @@ TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 V_freedesktop=$(flatpak remote-ls flathub --arch=x86_64 --columns=ref | grep 'org.freedesktop.Platform/x86_64/' | cut -d'/' -f4 | sort -V | tail -n1)
 V_gnome=$(flatpak remote-ls flathub --arch=x86_64 --columns=ref | grep 'runtime/org.gnome.Platform/x86_64/' | cut -d'/' -f4 | sort -V | tail -n1)
 
-#FLATPAK_REFS="${FLATPAK_REFS:-runtime/org.freedesktop.Platform/x86_64/$V_freedesktop runtime/org.gnome.Platform/x86_64/$V_gnome org.keepassxc.KeePassXC com.obsproject.Studio org.jitsi.jitsi-meet io.github.nroduit.Weasis br.app.pw3270.terminal }"
 FLATPAK_REFS="${FLATPAK_REFS:-runtime/org.freedesktop.Platform/x86_64/$V_freedesktop runtime/org.gnome.Platform/x86_64/$V_gnome }"
 FORCE_FLATPAK_CACHE="${FORCE_FLATPAK_CACHE:-0}"
 
@@ -376,7 +375,7 @@ setup_apt_cacher_ng() {
         log_info "Backup da configuração anterior: $BACKUP_DIR/acng.conf.bak_$TIMESTAMP"
     fi
     
-    log_info "Aplicando configuração otimizada..."
+    log_info "Aplicando configuração otimizada para o deploy e LAN..."
     
     cat <<EOF | tee "$ACNG_CONF" > /dev/null
 CacheDir: /var/cache/apt-cacher-ng

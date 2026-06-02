@@ -40,7 +40,7 @@ COMMON_PKGS="
     sshfs gsmartcontrol smart-notifier adb ideviceinstaller libimobiledevice-utils ifuse usbmuxd
     uxplay printer-driver-cups-pdf python3-smbc seahorse grub2-common grub-pc-bin
     libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-shape0
-    libxcb-sync1 libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxcb-util1
+    libxcb-sync1 libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 libxcb-util1
     libxcb-cursor0 libxcb-xinput0 libxcb-composite0 libgles2 libgles2-mesa-dev
     vlc hplip hplip-gui cups cups-pdf gscan2pdf simple-scan tesseract-ocr tesseract-ocr-por
     curl libnss3-tools 

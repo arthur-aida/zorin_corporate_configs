@@ -90,7 +90,7 @@ fi
 echo "" >/tmp/$(date +%F_%H%M%S)".fim"
 
 # =============================================================================
-# ATIVA TRIM EM SSD
+# ATIVA TRIM EM SSD, SFC
 # =============================================================================
 DRIVE=$(lsblk -no pkname $(findmnt -n / | awk '{ print $2 }'))
 if ! grep -q "discard" /etc/fstab; then

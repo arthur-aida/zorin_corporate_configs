@@ -2,7 +2,6 @@
 # CARREGAdriverTOKEN.sh - Registra módulos PKCS#11 e configura cron
 # CORRIGIDO: zenity só é chamado se DISPLAY estiver ativo
 
-# OTIMIZAÇÃO 1.7: adicionado lock com trap
 LOCKFILE="/tmp/$(basename "$0").lock"
 if [ -f "$LOCKFILE" ]; then
     exit 0

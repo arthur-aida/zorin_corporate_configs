@@ -1,7 +1,6 @@
 #!/bin/bash
 # =============================================================================
 # tokenGD.sh - Instala drivers para Token G&D SafeSign (todas as distribuições)
-#
 # Utiliza download com cache (NFS ou local) e fallback para internet.
 # Mantém a compatibilidade com Ubuntu 18.04 a 24.04 e derivados.
 # =============================================================================

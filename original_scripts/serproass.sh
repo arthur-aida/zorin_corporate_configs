@@ -31,6 +31,7 @@ if [ -n "${SUDO_USER:-}" ] && command -v zenity >/dev/null 2>&1; then
 fi
 
 echo "Baixando instalador do SERPRO de $INSTALLER_URL..."
+
 # Download com verificação de sucesso
 if curl -fsSL --connect-timeout 15 --max-time 60 -o "$TMP_FILE" "$INSTALLER_URL"; then
     # Verifica se o arquivo não está vazio
