@@ -3,7 +3,7 @@ By arthur-aida: A set of scripts to optimize Zorin OS 18.1 for corporate use.
 
 MIT License
 
-Copyright (c) 2026 [O SEU NOME OU ORGANIZAÇÃO]
+Copyright (c) 2026 [arthur.aida@gmail.com]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
