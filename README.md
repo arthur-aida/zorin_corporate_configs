@@ -40,7 +40,7 @@ SOFTWARE.
 
 7-Mude o caminho com <cd /etc/customization/>
 
-8-Inicie a customização com o comando: <bash main.sh 2 2>&1 | tee /tmp/TXT.txt; mv /tmp/main.log /var/log/customization-persist/main.log>
+8-Inicie a customização com o comando: <bash main.sh 2 2>&1 | tee /tmp/main.log; mv /tmp/main.log /var/log/customization-persist/main.log>
 
 9-O comando acima realiza a customização conforme a documentação e copia o log para persistencia e auditoria.  
 
