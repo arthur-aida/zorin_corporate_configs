@@ -23,7 +23,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-==================LEIA A OS DOCUMENTOS DA PASTA DOCS========================
-Abra o terminal e digite <cd /tmp/>. Faça o download com:
+====RECOMENDA-SE LER A DOCUMENTAÇÃO ANTES DE PROSSEGUIR NA PASTA Docs====
+
+1-Abra um terminal e digite <cd /tmp/>. Faça o download dos scripts com:
 wget https://github.com/arthur-aida/zorin_corporate_configs/archive/refs/heads/main.zip -O /tmp/customization.zip
-e descompate-o . Copie o
+2-Descompate-o com o comando <unzip -q /tmp/customization.zip -d "/tmp/customization/"> 
+3-Mude o caminho para /tmp/customization/zorin_corporate_configs-main com <cd /tmp/customization/zorin_corporate_configs-main>
+4-Eleve-se ao sudo com <sudo su> e forneça a senha do administrador
+5-Crie o diretorio /etc/customization com o comando <mkdir /etc/customization/>
+6-Execute <cp -r /tmp/customization/zorin_corporate_configs-main/* /etc/customization/>
+7-Mude o caminho com <cd /etc/customization/>
+8-Inicie a customização com o comando: <bash main.sh 2 2>&1 | tee /tmp/TXT.txt; mv /tmp/main.log /var/log/customization-persist/main.log>
+9-O comando acima realiza a customização conforme a documentação e copia o log para persistencia e auditoria.  
+10-Os comandos dentro de <comando a ser executado no terminal> devem ser digitados ou copido e colados no terminal.
