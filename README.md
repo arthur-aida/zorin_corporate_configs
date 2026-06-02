@@ -26,7 +26,7 @@ SOFTWARE.
 ====RECOMENDA-SE LER A DOCUMENTAÇÃO ANTES DE PROSSEGUIR NA PASTA Docs====
 
 1-Abra um terminal e digite <cd /tmp/>. Faça o download dos scripts com:
-wget https://github.com/arthur-aida/zorin_corporate_configs/archive/refs/heads/main.zip -O /tmp/customization.zip
+<wget https://github.com/arthur-aida/zorin_corporate_configs/archive/refs/heads/main.zip -O /tmp/customization.zip>
 
 2-Descompate-o com o comando <unzip -q /tmp/customization.zip -d "/tmp/customization/"> 
 
