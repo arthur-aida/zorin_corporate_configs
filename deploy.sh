@@ -13,7 +13,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 # URL do repositório (SUBSTITUIR PELO SEU)
-REPO_URL="https://github.com/SEU_USUARIO/SEU_REPOSITORIO/archive/refs/heads/main.zip"
+REPO_URL="https://codeload.github.com/arthur-aida/zorin_corporate_configs/zip/refs/tags/Customization?token=AXWCBRNSJRZXJ3IPPVPJYTDKD2ZZM"
 DEST_DIR="/etc/customization"
 TEMP_DIR="/tmp/customization_$$"
 LOG_FILE="/var/log/deploy-customization.log"
