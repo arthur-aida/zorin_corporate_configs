@@ -46,7 +46,8 @@ SOFTWARE.
 
 10-Os comandos dentro de < > devem ser digitados ou copiados e colados no terminal.
 
+11-Opcionalmente para otimitizar o processo, abra o terminal, copie e cole o texto abaixo para executar os processos acima de forma automatizada:
 
-11-Por segurança inspecione o conteúdo de todos os scripts. Opcionalmente para automatizar o processo abra o terminal e copie e cole o link abaixo para executação automatizada dos processos acima:
+sudo bash -c "mkdir -p /etc/customization/ /var/log/customization-persist/ && rm -rf /tmp/customization* && wget https://github.com/arthur-aida/zorin_corporate_configs/archive/refs/heads/main.zip -O /tmp/customization.zip && unzip -q /tmp/customization.zip -d /tmp/customization/ && cp -r /tmp/customization/zorin_corporate_configs-main/* /etc/customization/ && cd /etc/customization/ && chmod +x main.sh && ./main.sh 2 2>&1 | tee /var/log/customization-persist/main.log"
 
-curl -sL https://githubusercontent.com | sudo bash
+12-POR SEGURANÇA INSPECIONE O CONTEÚDO DE TODOS OS SCRIPTS ANTES DE EXECUTAR QUAISQUER DOS COMANDOS ACIMA.
