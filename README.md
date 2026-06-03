@@ -52,7 +52,7 @@ sudo bash -c "mkdir -p /etc/customization/ /var/log/customization-persist/ && rm
 
 12-POR SEGURANÇA INSPECIONE O CONTEÚDO DE TODOS OS SCRIPTS ANTES DE EXECUTAR QUAISQUER DOS COMANDOS ACIMA.
 
-                                                        Nunca execute ou teste os scripts diretamente na sua máquina de uso diário. Baixe o código localmente (usando git clone) ou use as extensões de segurança do próprio GitHub e pesquise como sanitizar o código com os utilitários a seguir:
+Nunca execute ou teste os scripts diretamente na sua máquina de uso diário. Baixe o código localmente (usando git clone) ou use as extensões de segurança do próprio GitHub e pesquise como sanitizar o código com os utilitários a seguir:
                                                         
     • Trivy (da Aqua Security): É uma das ferramentas mais completas para buscar vulnerabilidades, segredos expostos e malwares conhecidos em sistemas de arquivos e repositórios Git.
     • Semgrep: Excelente analisador estático para encontrar bugs de lógica, injeções de código e funções perigosas baseadas em regras da comunidade. 
