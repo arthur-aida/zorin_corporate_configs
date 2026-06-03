@@ -51,3 +51,24 @@ SOFTWARE.
 sudo bash -c "mkdir -p /etc/customization/ /var/log/customization-persist/ && rm -rf /tmp/customization* && wget https://github.com/arthur-aida/zorin_corporate_configs/archive/refs/heads/main.zip -O /tmp/customization.zip && unzip -q /tmp/customization.zip -d /tmp/customization/ && cp -r /tmp/customization/zorin_corporate_configs-main/* /etc/customization/ && cd /etc/customization/ && chmod +x main.sh && ./main.sh 2 2>&1 | tee /var/log/customization-persist/main.log"
 
 12-POR SEGURANÇA INSPECIONE O CONTEÚDO DE TODOS OS SCRIPTS ANTES DE EXECUTAR QUAISQUER DOS COMANDOS ACIMA.
+
+                                                        Nunca execute ou teste os scripts diretamente na sua máquina de uso diário. Baixe o código localmente (usando git clone) ou use as extensões de segurança do próprio GitHub e pesquise como sanitizar o código com os utilitários a seguir:
+                                                        
+    • Trivy (da Aqua Security): É uma das ferramentas mais completas para buscar vulnerabilidades, segredos expostos e malwares conhecidos em sistemas de arquivos e repositórios Git.
+    • Semgrep: Excelente analisador estático para encontrar bugs de lógica, injeções de código e funções perigosas baseadas em regras da comunidade. 
+    • ClamAV: O antivírus open-source padrão para Linux. Você pode apontar o clamscan diretamente para a pasta do repositório clonado para buscar assinaturas de malwares conhecidos de Linux (como ELF maliciosos ou scripts de criptomineração).
+    • Ofuscação de código: Procure por strings convertidas que tentam se esconder de antivírus comuns.
+      bash
+      grep -rnEi '(base64|decode|eval|exec|atob|hex)' .
+    • Conexões e Downloads Externos: Verifique se o script tenta baixar executáveis de IPs desconhecidos ou URLs suspeitas para a pasta /tmp ou /dev/shm.
+      bash
+      grep -rnEi '(curl|wget|fetch|nc -e|/bin/sh|/bin/bash)' .
+      
+    • Persistência e Backdoors: Scripts que modificam o cron, adicionam chaves SSH sem aviso ou editam arquivos de inicialização (como .bashrc ou .profile).
+      bash
+      grep -rnEi '(\.ssh/authorized_keys|cron|systemd|init\.d)' .
+    • Commits Verificados: Verifique se os commits mais recentes possuem a tag Verified (assinatura GPG). Desconfie de alterações críticas de última hora feitas por contas criadas recentemente.
+    • Ataques de "Typosquatting": Se o script instala dependências externas (como pacotes pip, npm ou apt), verifique se os nomes não estão ligeiramente errados para imitar uma biblioteca famosa (ex: lodahs em vez de lodash), o que indica infecção por pacotes falsos.
+    • Análise de GitHub Actions: Inspecione a pasta .github/workflows/. Verifique se há injeções de variáveis de ambiente não sanitizadas (${{ github.event... }}) que permitam a execução de códigos arbitrários durante a integração contínua (CI).
+    • Máquinas Virtuais Descartáveis: Use gerenciadores como o VirtualBox ou KVM (adotado neste projeto) configurados em modo Host-only (sem acesso à sua rede local) para prevenir movimentação lateral caso o script seja um verme (worm).
+    • Monitoramento de Chamadas: Ao rodar o script no ambiente isolado, use o comando strace para monitorar quais arquivos o script tenta abrir, ler ou modificar.
