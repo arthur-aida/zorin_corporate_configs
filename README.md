@@ -13,7 +13,7 @@ Copyright (c) 2026 [arthur.aida@gmail.com]
 
 3-Mude o caminho para /tmp/customization/zorin_corporate_configs-main com <cd /tmp/customization/zorin_corporate_configs-main>
 
-4-Eleve-se ao sudo com <sudo su> e forneça a senha do administrador
+4-Eleve-se ao ambiente do root com sudo su e forneça a senha do administrador
 
 5-Crie o diretorio /etc/customization com o comando <mkdir /etc/customization/>
 
