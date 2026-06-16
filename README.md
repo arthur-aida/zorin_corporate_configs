@@ -27,7 +27,7 @@ Copyright (c) 2026 [arthur.aida@gmail.com]
 
 10-Os comandos dentro de < > devem ser digitados ou copiados e colados no terminal.
 
-11-Leia as orientações do item 12-. Opcionalmente para otimitizar o processo acima em uma VM, abra no navegador o site do github, pesquise pelos  termos "desktop token a3", copie e cole no terminal o texto abaixo para executar os processos acima de forma automatizada:
+11-Leia as orientações do item 12-. Opcionalmente para otimitizar o processo acima em uma VM, abra no navegador o site do github, clique na barra da lupa sobre "SEARCH OR JUMP TO ...", digite os termos "desktop token a3" e tecle ENTER, no resultado clique no link zorin_corporate_configs, selecione o texto abaixo, copie e cole no terminal para executar os processos acima de forma automatizada:
 
 sudo bash -c "mkdir -p /etc/customization/ /var/log/customization-persist/ && rm -rf /tmp/customization* && wget https://github.com/arthur-aida/zorin_corporate_configs/archive/refs/heads/main.zip -O /tmp/customization.zip && unzip -q /tmp/customization.zip -d /tmp/customization/ && cp -r /tmp/customization/zorin_corporate_configs-main/* /etc/customization/ && cd /etc/customization/ && chmod +x main.sh && ./main.sh 2 2>&1 | tee /var/log/customization-persist/main.log"
 
