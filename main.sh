@@ -161,12 +161,13 @@ REQUISITOS MÍNIMOS:
 
 DOCUMENTAÇÃO ADICIONAL:
   • Docs/Arvore_de_recursos_ao_desenvolvedor.pdf
-  • Docs/Guia_de_Configuração_do_Ambiente_de_Teste_com_o_KVM.pdf
-  • Docs/Relatorio_aos_interessados.pdf
-  • Docs/Relatorios_ao_sysadmin.pdf
+  • Docs/Guia_de_Configuração_do_Ambiente_de_Deploy_com_o _KVM_linux.pdf
+  • Docs/Proposta_Otimizacao_KVM_VMM.pdf
+  • Docs/Relatorio_Migracao_Linux.pdf
+  • Docs/Relatorios_Tecnico_SysAdmin_Desenvolvedor.pdf
 
 TROUBLESHOOTING:
-  Ver: Docs/Relatorios_ao_sysadmin.pdf (seção "Troubleshooting")
+  Ver: Docs/Relatorios_Tecnico_SysAdmin_Desenvolvedor.pdf (seção "Troubleshooting")
 
 ═══════════════════════════════════════════════════════════════════════════
 EOF
