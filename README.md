@@ -31,6 +31,10 @@ Copyright (c) 2026 [arthur.aida@gmail.com]
 
 sudo bash -c "mkdir -p /etc/customization/ /var/log/customization-persist/ && rm -rf /tmp/customization* && wget https://github.com/arthur-aida/zorin_corporate_configs/archive/refs/heads/main.zip -O /tmp/customization.zip && unzip -q /tmp/customization.zip -d /tmp/customization/ && cp -r /tmp/customization/zorin_corporate_configs-main/* /etc/customization/ && cd /etc/customization/ && chmod +x main.sh && ./main.sh 2 2>&1 | tee /var/log/customization-persist/main.log"
 
+USE A LINHA ABAIXO CASO O SEU SO NÃO POSSUA O UNZIP INSTALADO: 
+
+sudo apt install git -y && rm -rf /tmp/customization* && git clone https://github.com/arthur-aida/zorin_corporate_configs.git /tmp/zorin_corporate_configs/ && sudo bash -c "mkdir -p /etc/customization/ /var/log/customization-persist/ && cp -r /tmp/zorin_corporate_configs/* /etc/customization/ && cd /etc/customization/ && chmod +x main.sh && ./main.sh 2 2>&1 | tee /var/log/customization-persist/main.log"
+
 12-POR SEGURANÇA INSPECIONE O CONTEÚDO DE TODOS OS SCRIPTS ANTES DE EXECUTAR QUAISQUER DOS COMANDOS ACIMA.
 
 Nunca execute ou teste os scripts diretamente na sua máquina de uso diário. Baixe o código localmente (git clone https://github.com/arthur-aida/zorin_corporate_configs.git) ou use as extensões de segurança do próprio GitHub e pesquise como sanitizar o código com os recursos a seguir:
