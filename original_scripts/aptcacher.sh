@@ -61,8 +61,8 @@ apt update
 # ATUALIZAÇÃO DE NAVEGADORES (apenas para distribuições suportadas)
 # =============================================================================
 if [ "$var2" = 'zorin' ] || [ "$var2" = 'ubuntu' ] || [ "$var2" = 'linuxmint' ]; then
-    sh /etc/firefox-manager.sh stable
-    sh /etc/firefox-manager.sh esr
+    bash /etc/firefox-manager.sh stable
+    bash /etc/firefox-manager.sh esr
 fi
 
 # =============================================================================
