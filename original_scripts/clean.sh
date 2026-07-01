@@ -1,8 +1,7 @@
 #!/bin/bash
 # clean.sh - Limpeza periódica de arquivos temporários
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-source "$SCRIPT_DIR/utils/common.sh"
+source /etc/customization/utils/common.sh
 source /etc/customization/utils/logging.sh
 
 if command -v bleachbit >/dev/null 2>&1; then
@@ -18,5 +17,5 @@ else
 	rm -rf /root/.cache/* /var/tmp/* 2>/dev/null || true
 	find /home -maxdepth 3 -type d -name ".cache" -exec rm -rf {} \; 2>/dev/null || true
 fi
-log_info "O crontab disparou a limpeza programada"
+log_info "O crontab disparou a limpeza programada a cada 63 dias"
 
