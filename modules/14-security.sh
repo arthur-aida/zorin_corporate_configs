@@ -146,7 +146,7 @@ CRON_ENTRIES=(
     "*/5 * * * * root /etc/enableprinter.sh"
     "@reboot root /bin/sleep 600 && sh /etc/aptcacher.sh"
     "20 12 */2 * * root /bin/sleep 3600 && apt update && apt upgrade -y && dpkg --configure -a && apt-get autoremove -y && apt clean && bash /etc/hookjava1.8.sh"
-    "40 12 */63 * * root /etc/clean.sh"
+    "40 12 */63 * * root bash  /etc/clean.sh"
 )
 
 # Verifica e adiciona cada entrada se não existir
