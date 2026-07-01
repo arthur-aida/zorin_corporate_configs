@@ -1,7 +1,7 @@
 #!/bin/bash
 # clean.sh - Limpeza periódica de arquivos temporários
 
-CRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$SCRIPT_DIR/utils/common.sh"
 source /etc/customization/utils/logging.sh
 
