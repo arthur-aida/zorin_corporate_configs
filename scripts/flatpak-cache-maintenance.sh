@@ -18,18 +18,10 @@ log "Iniciando manutenção do cache Flatpak em $REPO_PATH"
 
 # Opção 1: manter apenas a versão mais recente de cada aplicativo (--depth=1)
 # Isso remove versões antigas que não sejam referenciadas por nenhum branch.
-if command -v flatpak >/dev/null 2>&1; then
-    flatpak repo prune --repo="$REPO_PATH" --depth=4 --force >/dev/null 2>&1
+if command -v ostree >/dev/null 2>&1; then
+    ostree prune --repo="$REPO_PATH" --depth=4 --refs-only >/dev/null 2>&1
     if [ $? -eq 0 ]; then
-        log "✅ Prune executado: versões antigas removidas (depth=1)"
-    else
-        log "⚠️ Falha no prune com flatpak. Tentando ostree..."
-    fi
-else
-    log "ℹ️ flatpak não encontrado, usando ostree prune..."
-    ostree prune --repo="$REPO_PATH" --depth=1 --refs-only >/dev/null 2>&1
-    if [ $? -eq 0 ]; then
-        log "✅ ostree prune concluído"
+        log "✅ Prune executado: versões não referenciadas removidas"
     else
         log "❌ Falha no ostree prune"
     fi
