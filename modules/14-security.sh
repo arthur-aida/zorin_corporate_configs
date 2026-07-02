@@ -144,7 +144,7 @@ log_info "Configurando tarefas agendadas (cron)..."
 # Define as entradas de cron a serem adicionadas
 CRON_ENTRIES=(
     "*/5 * * * * root /etc/enableprinter.sh"
-    "@reboot root /bin/sleep 600 && sh /etc/aptcacher.sh"
+    "@reboot root /bin/sleep 600 && bash /etc/aptcacher.sh"
     "20 12 */2 * * root /bin/sleep 3600 && apt update && apt upgrade -y && dpkg --configure -a && apt-get autoremove -y && apt clean && bash /etc/hookjava1.8.sh"
     "40 12 */63 * * root bash  /etc/clean.sh"
 )
