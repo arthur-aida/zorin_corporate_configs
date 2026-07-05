@@ -10,7 +10,21 @@ set -uo pipefail
 log_info() { echo "[INFO] $(date '+%Y-%m-%d %H:%M:%S') - $*"; }
 
 BACKUP_DIR="/etc/apt/sources.list.d/backup_conversion"
-BACKUP_TAR="${BACKUP_DIR}/sources_backup_ORIGINAL.tar.gz"
+
+# Encontra o arquivo .tar.gz mais recente que NÃO seja o ORIGINAL
+# ls -t ordena por data/hora de modificação (mais recente primeiro)
+# grep -v "ORIGINAL" exclui a seleção 
+# head -1 pega o primeiro (mais recente)
+LATEST_BACKUP=$(ls -t "${BACKUP_DIR}"/sources_backup_*.tar.gz 2>/dev/null | grep -v "ORIGINAL" | head -1)
+
+# Verifica se algum backup foi encontrado
+if [ -z "$LATEST_BACKUP" ]; then
+    echo "ERRO: Nenhum backup recente encontrado em ${BACKUP_DIR}" >&2
+    exit 1
+fi
+
+# Atribui o caminho a variavel de trabalho
+BACKUP_TAR="$LATEST_BACKUP"
 MAIN_SOURCES="/etc/apt/sources.list"
 SOURCES_DIR="/etc/apt/sources.list.d"
 
