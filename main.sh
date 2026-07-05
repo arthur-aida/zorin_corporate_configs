@@ -603,8 +603,12 @@ done
 # Reaplica conversão para proxy **apenas se APTCACHER foi definido e o proxy está ativo**
 if [ -n "${APTCACHER:-}" ] && [ -f "/etc/acngonoff.sh" ]; then
     if bash "/etc/acngonoff.sh"; then
+        # Garante que a variável PROXY_URL esteja disponível para o conversor
+        [ -f /tmp/acng_env ] && source /tmp/acng_env
         log_info "Reaplicando Mapeamento Direto a todas as fontes..."
         chmod +x /etc/customization/scripts/convert-sources-to-proxy.sh
+        # Opcional: exportar explicitamente para subshell (já é feito pelo source, mas por segurança)
+        export PROXY_URL="${PROXY_URL:-}"
         /etc/customization/scripts/convert-sources-to-proxy.sh
     fi
 fi
