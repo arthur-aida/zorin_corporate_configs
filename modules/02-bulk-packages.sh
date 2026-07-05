@@ -57,8 +57,13 @@ if [ -f /usr/bin/xfce4-session ]; then
     COMMON_PKGS=$(echo "$COMMON_PKGS" | sed 's/\beog\b/ristretto/')
 fi
 
-# 5. Instalação massiva
+# 5. Preparação da Instalação massiva
 log_info "Instalando pacotes (isso pode levar alguns minutos)..."
+
+# Remove arquivo de configuração se existir
+if [ -f /etc/default/smartmontools ]; then
+    rm /etc/default/smartmontools
+fi
 
 # Proteção absoluta antes da operação principal
 wait_for_apt_unlock
