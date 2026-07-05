@@ -186,6 +186,7 @@ fi
 # =============================================================================
 set -euo pipefail
 SCRIPT_DIR="/etc/customization"
+SOURCES_DIR="/etc/apt/sources.list.d"
 LOG_DIR="/var/log/customization"
 PERSISTENT_LOG_DIR="/var/log/customization-persist"
 BG_PIDS=()
