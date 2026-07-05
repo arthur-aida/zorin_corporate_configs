@@ -91,8 +91,8 @@ strip_proxy() {
 apply_proxy_list() {
     local file="$1"
     sed -i \
-        -e "s|https://\([^$CLEAN_PROXY]\)|http://$CLEAN_PROXY/HTTPS///\1|g" \
         -e "s|http://\([^$CLEAN_PROXY]\)|http://$CLEAN_PROXY/\1|g" \
+        -e "s|https://\([^$CLEAN_PROXY]\)|http://$CLEAN_PROXY/HTTPS///\1|g" \
         "$file"
 }
 
@@ -100,8 +100,8 @@ apply_proxy_list() {
 apply_proxy_sources() {
     local file="$1"
     sed -i -E \
-        -e "s|(URIs:.*)https://([^ ]*)|\1 http://$CLEAN_PROXY/HTTPS///\2|g" \
         -e "s|(URIs:.*)http://([^ ]*)|\1 http://$CLEAN_PROXY/\2|g" \
+        -e "s|(URIs:.*)https://([^ ]*)|\1 http://$CLEAN_PROXY/HTTPS///\2|g" \
         "$file"
 }
 
