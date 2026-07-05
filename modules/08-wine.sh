@@ -24,7 +24,7 @@ if [ -f "/etc/acngonoff.sh" ]; then
     log_info "Avaliando infraestrutura de rede para otimização de download..."
     if bash "/etc/acngonoff.sh"; then
         [ -f /tmp/acng_env ] && source /tmp/acng_env
-        WINE_PROTO="http"
+        WINE_PROTO="https"
         log_info "🚀 Cache detectado ($PROXY_URL). Usando HTTP para permitir Mapeamento Direto."
     else
         log_info "🏠 Rede doméstica ou sem cache detectada. Usando HTTPS direto."
