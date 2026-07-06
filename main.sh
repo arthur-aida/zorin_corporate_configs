@@ -23,6 +23,7 @@
 # AUTORES E HISTÓRICO:
 #   Original: arthur-aida (2026-05-21)
 #   Versão: 2.0 - Melhorias de robustez e documentação
+#   Versão: 2.1 - Precarregamento de repositorios e chaves
 # =============================================================================
 set -eu
 
@@ -217,18 +218,49 @@ cleanup_logs() {
     if [ -d "$LOG_DIR" ] && [ "$LOG_DIR" != "$PERSISTENT_LOG_DIR" ]; then
         mkdir -p "$PERSISTENT_LOG_DIR"
         cp -a "$LOG_DIR/." "$PERSISTENT_LOG_DIR/" 2>/dev/null || true
-        # Executa o script de auditoria se ainda não foi executado (em caso de interrupção)
-        #chmod +x /etc/customization/scripts/generate_cache_audit.sh
-        #if [ ! -f "${PERSISTENT_LOG_DIR}/cache_audit.log" ]; then
-        #    if [ -x /etc/customization/scripts/generate_cache_audit.sh ]; then
-        #        bash /etc/customization/scripts/generate_cache_audit.sh "$PERSISTENT_LOG_DIR" || true
-        #    fi
-        #fi
         umount -l "$LOG_DIR" 2>/dev/null || true
     fi
     
     exit $exit_code
 }
+
+# -----------------------------------------------------------------------------
+# FUNÇÃO: CARREGA REPOSITORIOS E CHAVES
+# -----------------------------------------------------------------------------
+carrega_repos() {
+	#====================================================================
+	# Adiciona o repositorio do wine
+	#====================================================================
+	WINE_KEYRING="/usr/share/keyrings/winehq.gpg"
+	WINE_SOURCE="/etc/apt/sources.list.d/winehq.list"
+
+	if [ ! -f "$WINE_KEYRING" ]; then
+	    log_info "Baixando chave GPG do WineHQ..."
+	    mkdir -p "$(dirname "$WINE_KEYRING")"
+	    TEMP_KEY="/tmp/winehq.key"
+	    # O download_with_cache já utiliza a lógica de proxy se disponível no common.sh
+	    if download_with_cache "https://dl.winehq.org/wine-builds/winehq.key" "$TEMP_KEY"; then
+		gpg --dearmor -o "$WINE_KEYRING" < "$TEMP_KEY" 2>/dev/null
+		log_info "✅ Chave GPG do WineHQ instalada"
+	    fi
+	fi
+
+	# ─── Detecção do codinome do Ubuntu (inclusive para Linux Mint) ───
+	if [ -f /etc/os-release ]; then
+	    # Tenta obter a variável UBUNTU_CODENAME (presente no Mint e derivados)
+	    UBUNTU_CODENAME=$(grep -oP '^UBUNTU_CODENAME=\K.*' /etc/os-release 2>/dev/null || true)
+	fi
+	# Se a variável não existir, usa lsb_release (Ubuntu/Debian padrão)
+	if [ -z "$UBUNTU_CODENAME" ]; then
+	    UBUNTU_CODENAME=$(lsb_release -sc 2>/dev/null || echo "noble")
+	fi
+
+	# Adiciona o repositório com o codinome correto (linuxmint x ubuntu)
+	echo "deb [signed-by=$WINE_KEYRING] https://dl.winehq.org/wine-builds/ubuntu/ $UBUNTU_CODENAME main" | tee "$WINE_SOURCE" >/dev/null
+	log_info "Repositório WineHQ adicionado com codinome UBUNTU BASE detectado: $UBUNTU_CODENAME"
+	#====================================================================
+}
+
 trap cleanup_logs EXIT INT TERM
 
 # Carrega funções comuns
@@ -300,6 +332,7 @@ systemctl stop apt-daily.timer apt-daily-upgrade.timer 2>/dev/null || true
 systemctl disable apt-daily.timer apt-daily-upgrade.timer 2>/dev/null || true
 pkill -f apt.systemd.daily 2>/dev/null || true
 
+carrega_repos
 wait_for_apt_unlock
 update_apt_keys_no_proxy
 log_info "========================================="
