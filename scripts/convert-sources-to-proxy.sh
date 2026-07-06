@@ -79,11 +79,9 @@ add_marker() {
 # Remove QUALQUER proxy de forma genérica (reversão)
 strip_proxy() {
     local file="$1"
-    # 1) http://IP:PORT/HTTPS///  → https://
-    # 2) http://IP:PORT/          → http://
     sed -i -E \
-        -e 's|http://[^/]*/HTTPS///|https://|g' \
-        -e 's|http://[^/]*/|http://|g' \
+        -e 's|http://[^/]+:[0-9]+/HTTPS///|https://|g' \
+        -e 's|http://[^/]+:[0-9]+/|http://|g' \
         "$file"
 }
 
