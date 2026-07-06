@@ -59,10 +59,10 @@ for f in "${NEW_FILES[@]}"; do
     src="${SOURCES_DIR}/${f}"
     dst="${TEMP_DIR}/${f}"
 
-    # Reversão genérica (não depende de IP:porta específico)
-    sed -e 's|http://[^/]*/HTTPS///|https://|g' \
-        -e 's|http://[^/]*/|http://|g' \
-        "$src" > "$dst"
+    # Reversão genérica (remove apenas proxy no formato IP:PORT)
+    sed -e 's|http://[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}:[0-9]\+/HTTPS///|https://|g' \
+    -e 's|http://[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}:[0-9]\+/|http://|g' \
+    "$src" > "$dst"
 
     log_info "   ✅ $f revertido (proxy removido)"
     chmod 644 "$dst"
