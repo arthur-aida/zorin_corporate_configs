@@ -59,6 +59,8 @@ check_and_install_bash() {
 check_and_clean_proxy_remnants() {
     log_info "🔍 Verificando vestígios de proxy em repositórios..."
     
+    local MAIN_SOURCES="/etc/apt/sources.list"
+    local SOURCES_DIR="/etc/apt/sources.list.d"
     local FOUND_PROXY=false
     local SEARCH_PATTERN='http://[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+/'
     
