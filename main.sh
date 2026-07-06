@@ -706,6 +706,15 @@ if [ -d "$DISABLED_BACKUP_DIR" ] && [ "$(ls -A "$DISABLED_BACKUP_DIR" 2>/dev/nul
     mv "$DISABLED_BACKUP_DIR"/* "$SOURCES_DIR"/ 2>/dev/null || true
     rmdir "$DISABLED_BACKUP_DIR" 2>/dev/null || true
     log_info "Repositórios desabilitados restaurados."
+
+    # Remove proxy (apenas IP:PORT) de todos os arquivos restaurados
+    log_info "Removendo qualquer referência a proxy dos repositórios restaurados..."
+    for f in "$SOURCES_DIR"/*.list "$SOURCES_DIR"/*.sources; do
+        [ -f "$f" ] && sed -i -E \
+            -e 's|http://[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+/HTTPS///|https://|g' \
+            -e 's|http://[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+/|http://|g' "$f"
+    done
+    log_info "✅ Proxy removido de todos os arquivos de fontes."
 fi
 
 if [ -f "$SCRIPT_DIR/utils/fix-sources-list.sh" ]; then
