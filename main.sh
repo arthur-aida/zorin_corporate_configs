@@ -53,6 +53,56 @@ check_and_install_bash() {
     fi
 }
 
+# =============================================================================
+# FUNÇÃO: VERIFICA E LIMPA VESTÍGIOS DE PROXY EM REPOSITÓRIOS
+# =============================================================================
+check_and_clean_proxy_remnants() {
+    log_info "🔍 Verificando vestígios de proxy em repositórios..."
+    
+    local FOUND_PROXY=false
+    local SEARCH_PATTERN='http://[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+/'
+    
+    # Verifica sources.list principal
+    if [ -f "$MAIN_SOURCES" ]; then
+        if grep -qE "$SEARCH_PATTERN" "$MAIN_SOURCES" 2>/dev/null; then
+            log_info "   ⚠️ Vestígio de proxy encontrado em $MAIN_SOURCES"
+            FOUND_PROXY=true
+        fi
+    fi
+    
+    # Verifica todos os arquivos .list e .sources em sources.list.d
+    for file in "$SOURCES_DIR"/*.list "$SOURCES_DIR"/*.sources; do
+        [ -f "$file" ] || continue
+        if grep -qE "$SEARCH_PATTERN" "$file" 2>/dev/null; then
+            log_info "   ⚠️ Vestígio de proxy encontrado em $file"
+            FOUND_PROXY=true
+        fi
+    done
+    
+    if [ "$FOUND_PROXY" = true ]; then
+        log_info "🔄 Executando restore-sources-from-backup.sh para remover todos os vestígios..."
+        bash "$SCRIPT_DIR/scripts/restore-sources-from-backup.sh"
+        
+        # Verifica novamente se o restore foi eficaz
+        local STILL_PROXY=false
+        for file in "$MAIN_SOURCES" "$SOURCES_DIR"/*.list "$SOURCES_DIR"/*.sources; do
+            [ -f "$file" ] || continue
+            if grep -qE "$SEARCH_PATTERN" "$file" 2>/dev/null; then
+                log_error "   ❌ Ainda há vestígio de proxy em $file"
+                STILL_PROXY=true
+            fi
+        done
+        
+        if [ "$STILL_PROXY" = false ]; then
+            log_info "✅ Todos os vestígios de proxy foram removidos com sucesso."
+        else
+            log_error "⚠️ Alguns vestígios persistiram. Verifique manualmente."
+        fi
+    else
+        log_info "✅ Nenhum vestígio de proxy encontrado nos repositórios."
+    fi
+}
+
 # -----------------------------------------------------------------------------
 # FUNÇÃO: MOSTRA AJUDA
 # -----------------------------------------------------------------------------
@@ -832,53 +882,4 @@ export ntpserver="${ntpserver:-}"
 EOF
 chmod 644 /etc/customization/active-profile.env
 
-# =============================================================================
-# FUNÇÃO: VERIFICA E LIMPA VESTÍGIOS DE PROXY EM REPOSITÓRIOS
-# =============================================================================
-check_and_clean_proxy_remnants() {
-    log_info "🔍 Verificando vestígios de proxy em repositórios..."
-    
-    local FOUND_PROXY=false
-    local SEARCH_PATTERN='http://[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+/'
-    
-    # Verifica sources.list principal
-    if [ -f "$MAIN_SOURCES" ]; then
-        if grep -qE "$SEARCH_PATTERN" "$MAIN_SOURCES" 2>/dev/null; then
-            log_info "   ⚠️ Vestígio de proxy encontrado em $MAIN_SOURCES"
-            FOUND_PROXY=true
-        fi
-    fi
-    
-    # Verifica todos os arquivos .list e .sources em sources.list.d
-    for file in "$SOURCES_DIR"/*.list "$SOURCES_DIR"/*.sources; do
-        [ -f "$file" ] || continue
-        if grep -qE "$SEARCH_PATTERN" "$file" 2>/dev/null; then
-            log_info "   ⚠️ Vestígio de proxy encontrado em $file"
-            FOUND_PROXY=true
-        fi
-    done
-    
-    if [ "$FOUND_PROXY" = true ]; then
-        log_info "🔄 Executando restore-sources-from-backup.sh para remover todos os vestígios..."
-        bash "$SCRIPT_DIR/scripts/restore-sources-from-backup.sh"
-        
-        # Verifica novamente se o restore foi eficaz
-        local STILL_PROXY=false
-        for file in "$MAIN_SOURCES" "$SOURCES_DIR"/*.list "$SOURCES_DIR"/*.sources; do
-            [ -f "$file" ] || continue
-            if grep -qE "$SEARCH_PATTERN" "$file" 2>/dev/null; then
-                log_error "   ❌ Ainda há vestígio de proxy em $file"
-                STILL_PROXY=true
-            fi
-        done
-        
-        if [ "$STILL_PROXY" = false ]; then
-            log_info "✅ Todos os vestígios de proxy foram removidos com sucesso."
-        else
-            log_error "⚠️ Alguns vestígios persistiram. Verifique manualmente."
-        fi
-    else
-        log_info "✅ Nenhum vestígio de proxy encontrado nos repositórios."
-    fi
-}
 exit 0
