@@ -156,7 +156,7 @@ Comment=Instala ou atualiza o Assinador Digital do Serpro
 Exec=sudo /bin/bash /etc/serproass.sh
 Type=Application
 Terminal=true
-Icon=Computer
+Icon=computer
 Categories=System;
 EOF2
 
