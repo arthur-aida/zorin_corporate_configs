@@ -23,6 +23,7 @@ if [ ! -d "$REPO_PATH" ]; then
     if [ ! -d "$REPO_PATH" ]; then
         echo "REPO_PATH não definido. Tenta montar com as variáveis da customização"
         run_preflight
+		mount_nfs_direct
     fi
 
 fi
