@@ -682,6 +682,53 @@ check_nfs_server() {
 }
 
 # =============================================================================
+# FUNÇÃO: MONTA NFS
+# =============================================================================
+mount_nfs_direct() {
+    local NFS_PORT_ACTUAL="${NFSPORT:-$NFS_PORT}"
+    log_info "Montando NFS para cache Flatpak (porta $NFS_PORT_ACTUAL)..."
+
+    # NFS_SERVER � global para uso posterior no rebuild_flatpak_cache_if_empty
+    NFS_SERVER=""
+    if [ -n "${NFS_SERVER_SELECTED:-}" ]; then
+        NFS_SERVER="$NFS_SERVER_SELECTED"
+        log_info "Usando servidor NFS selecionado no preflight: $NFS_SERVER"
+    else
+        NFS_SERVER=$(get_nfs_server)
+        log_info "Servidor NFS detectado agora: $NFS_SERVER"
+    fi
+
+    if [ -z "$NFS_SERVER" ]; then
+        log_warning "N�o foi poss�vel determinar servidor NFS. Abortando montagem."
+        return 1
+    fi
+
+    if nc -w 2 -v "$NFS_SERVER" "$NFS_PORT_ACTUAL" < /dev/null 2>/dev/null; then
+        log_info "Servidor NFS acess�vel"
+    else
+        log_warning "Servidor NFS $NFS_SERVER:$NFS_PORT_ACTUAL inacess�vel"
+        return 1
+    fi
+
+    log_info "Montando Flatpak cache..."
+    mount_nfs_if_available "$NFS_SERVER" "/mnt" "/partimag/flatpakcache/" "Flatpak cache" "$NFS_PORT_ACTUAL"
+
+    log_info "Montando reposit�rio administrativo..."
+    mount_nfs_if_available "$NFS_SERVER" "/tmp/cache" "/partimag/cache/" "Reposit�rio admin" "$NFS_PORT_ACTUAL"
+
+    if mountpoint -q /mnt && [ -d /mnt/.ostree/repo ]; then
+        log_info "Configurando Flatpak para usar cache NFS..."
+        flatpak remote-modify --collection-id=org.flathub.Stable flathub 2>/dev/null || true
+        log_info "Flatpak configurado com cache em /mnt/.ostree/repo"
+    else
+        log_info "Cache Flatpak NFS n�o encontrado em /mnt/.ostree/repo"
+    fi
+
+    export NFS_MOUNTED_BY_MAIN=true
+    return 0
+}
+
+# =============================================================================
 # run_preflight - Verifica pré-requisitos priorizando configurações do perfil
 # =============================================================================
 run_preflight() {
