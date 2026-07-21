@@ -20,15 +20,15 @@ if [ ! -d "$REPO_PATH" ]; then
 	set +a
     fi
     
-    if [! -n "$REPO_PATH" ]; then
+    if [ ! -d "$REPO_PATH" ]; then
         echo "REPO_PATH não definido. Tenta montar com as variáveis da customização"
         run_preflight
     fi
 
-    if [! -n "$REPO_PATH" ]; then
-        log "ERRO: Repositório $REPO_PATH não encontrado ou definido. Abortando."
-        exit 1
-    fi
+fi
+if [ ! -n "$REPO_PATH" ]; then
+    log "ERRO: Repositório $REPO_PATH não encontrado ou definido. Abortando."
+    exit 1
 fi
 
 log "Iniciando manutenção do cache Flatpak em $REPO_PATH"
