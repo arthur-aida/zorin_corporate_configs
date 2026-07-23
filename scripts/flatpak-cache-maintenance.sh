@@ -34,6 +34,8 @@ fi
 
 log "Iniciando manutenção do cache Flatpak em $REPO_PATH"
 
+ostree-repo-maintenance-mark
+
 # Opção 1: manter apenas a versão mais recente de cada aplicativo (--depth=1)
 # Isso remove versões antigas que não sejam referenciadas por nenhum branch.
 if command -v ostree >/dev/null 2>&1; then
