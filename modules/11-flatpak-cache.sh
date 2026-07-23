@@ -151,6 +151,7 @@ if [ "${ENABLE_HEALTH_APPS:-false}" = "true" ] && [ -d /tmp/cache ] && [ -f /tmp
 fi
 
 ostree-repo-maintenance-mark
+rmdir /mnt/.ostree/repo/.maintenance.lock 2>/dev/null   # libera o lock
 
 log_info "✅ Instalação Flatpak concluída"
 log_module_end "11-flatpak-cache"
