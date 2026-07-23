@@ -889,6 +889,6 @@ if [ "$CACHE_AVAILABLE" = true ] && [ -w /mnt/.ostree/repo ]; then
         log_info "\u26a0\ufe0f Script de manutencao nao encontrado ou nao executavel: $MAINT_SCRIPT"
     fi
 fi
-rmdir "$LOCK_DIR" 2>/dev/null   # libera o lock
+
 }
 
