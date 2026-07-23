@@ -892,5 +892,3 @@ fi
 rmdir "$LOCK_DIR" 2>/dev/null   # libera o lock
 }
 
-
-}
