@@ -150,53 +150,7 @@ if [ "${ENABLE_HEALTH_APPS:-false}" = "true" ] && [ -d /tmp/cache ] && [ -f /tmp
     sync
 fi
 
-# =============================================================================
-# Manutenção diária do cache NFS (prune de versões antigas)
-# Agora com marcador compartilhado via NFS e lock atômico
-# =============================================================================
-if [ "$CACHE_AVAILABLE" = true ] && [ -w /mnt/.ostree/repo ]; then
-    MAINT_SCRIPT="/usr/local/bin/flatpak-cache-maintenance.sh"
-    FLAG_FILE="/mnt/.ostree/repo/.last-maintenance"  # ← marcador no NFS
-    LOCK_DIR="/mnt/.ostree/repo/.maintenance.lock"
-    TODAY=$(date +%Y%m%d)
-    
-    if [ -f "$MAINT_SCRIPT" ] && [ -x "$MAINT_SCRIPT" ]; then
-        # Tenta adquirir o lock atômico (mkdir é operação atômica)
-        if mkdir "$LOCK_DIR" 2>/dev/null; then
-            # Verifica a data do marcador compartilhado
-            if [ -f "$FLAG_FILE" ]; then
-                LAST_RUN=$(cat "$FLAG_FILE" 2>/dev/null)
-            else
-                LAST_RUN=""
-            fi
-
-            if [ "$LAST_RUN" = "$TODAY" ]; then
-                log_info "ℹ️ Manutencao do cache Flatpak ja executada hoje ($TODAY). Nada a fazer."
-            else
-                log_info "📆 Ultima execucao: ${LAST_RUN:-nunca}. Executando manutencao..."
-                if bash "$MAINT_SCRIPT"; then
-                    echo "$TODAY" > "$FLAG_FILE"
-                    log_info "✅ Manutencao concluida. Marcador atualizado para $TODAY."
-                else
-                    log_warning "⚠️ Falha na manutencao. Tente novamente amanha."
-                fi
-            fi
-            rmdir "$LOCK_DIR" 2>/dev/null   # libera o lock
-        else
-            log_info "⏳ Outra VM esta executando a manutencao. Aguardando..."
-            # Aguarda um pouco e reavalia o marcador
-            sleep 5
-            if [ -f "$FLAG_FILE" ]; then
-                LAST_RUN=$(cat "$FLAG_FILE")
-                if [ "$LAST_RUN" = "$TODAY" ]; then
-                    log_info "✅ Manutencao concluida por outra VM (marcador atualizado)."
-                fi
-            fi
-        fi
-    else
-        log_info "⚠️ Script de manutencao nao encontrado ou nao executavel: $MAINT_SCRIPT"
-    fi
-fi
+ostree-repo-maintenance-mark
 
 log_info "✅ Instalação Flatpak concluída"
 log_module_end "11-flatpak-cache"
