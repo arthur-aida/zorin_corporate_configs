@@ -833,7 +833,7 @@ run_preflight() {
 
 ostree-repo-maintenance-mark() {
 # =============================================================================
-# Manutençãoo diária do cache NFS (prune de versões antigas)
+# Manutenção diária do cache NFS (prune de versões antigas)
 # Agora com marcador compartilhado via NFS e lock atômico
 # =============================================================================
 
@@ -877,7 +877,7 @@ if [ "$CACHE_AVAILABLE" = true ] && [ -w /mnt/.ostree/repo ]; then
         else
             log_info "\u23f3 Outra VM esta executando a manutencao. Aguardando..."
             # Aguarda um pouco e reavalia o marcador
-            sleep 50
+            sleep 5
             if [ -f "$FLAG_FILE" ]; then
                 LAST_RUN=$(cat "$FLAG_FILE")
                 if [ "$LAST_RUN" = "$TODAY" ]; then
@@ -889,6 +889,5 @@ if [ "$CACHE_AVAILABLE" = true ] && [ -w /mnt/.ostree/repo ]; then
         log_info "\u26a0\ufe0f Script de manutencao nao encontrado ou nao executavel: $MAINT_SCRIPT"
     fi
 fi
-
 }
 
