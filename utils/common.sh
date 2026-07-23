@@ -864,29 +864,29 @@ if [ "$CACHE_AVAILABLE" = true ] && [ -w /mnt/.ostree/repo ]; then
             fi
 
             if [ "$LAST_RUN" = "$TODAY" ]; then
-                log_info "\u2139\ufe0f Manutencao do cache Flatpak ja executada hoje ($TODAY). Nada a fazer."
+                log_info " Manutencao do cache Flatpak ja executada hoje ($TODAY). Nada a fazer."
             else
-                log_info "\U0001f4c6 Ultima execucao: ${LAST_RUN:-nunca}. Executando manutencao..."
+                log_info " Ultima execucao: ${LAST_RUN:-nunca}. Executando manutencao..."
                 if bash "$MAINT_SCRIPT"; then
                     echo "$TODAY" > "$FLAG_FILE"
-                    log_info "\u2705 Manutencao concluida. Marcador atualizado para $TODAY."
+                    log_info "  Manutencao concluida. Marcador atualizado para $TODAY."
                 else
-                    log_warning "\u26a0\ufe0f Falha na manutencao. Tente novamente amanha."
+                    log_warning " Falha na manutencao. Tente novamente amanha."
                 fi
             fi
         else
-            log_info "\u23f3 Outra VM esta executando a manutencao. Aguardando..."
+            log_info " Outra VM esta executando a manutencao. Aguardando..."
             # Aguarda um pouco e reavalia o marcador
             sleep 5
             if [ -f "$FLAG_FILE" ]; then
                 LAST_RUN=$(cat "$FLAG_FILE")
                 if [ "$LAST_RUN" = "$TODAY" ]; then
-                    log_info "\u2705 Manutencao concluida por outra VM (marcador atualizado)."
+                    log_info " Manutencao concluida por outra VM (marcador atualizado)."
                 fi
             fi
         fi
     else
-        log_info "\u26a0\ufe0f Script de manutencao nao encontrado ou nao executavel: $MAINT_SCRIPT"
+        log_info " Script de manutencao nao encontrado ou nao executavel: $MAINT_SCRIPT"
     fi
 fi
 }
