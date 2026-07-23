@@ -831,3 +831,52 @@ run_preflight() {
     return 0
 }
 
+ostree-repo-maintenance-mark() {
+# =============================================================================
+# Manutençãoo diária do cache NFS (prune de versões antigas)
+# Agora com marcador compartilhado via NFS e lock atômico
+# =============================================================================
+if [ "$CACHE_AVAILABLE" = true ] && [ -w /mnt/.ostree/repo ]; then
+    MAINT_SCRIPT="/usr/local/bin/flatpak-cache-maintenance.sh"
+    FLAG_FILE="/mnt/.ostree/repo/.last-maintenance"  # \u2190 marcador no NFS
+    LOCK_DIR="/mnt/.ostree/repo/.maintenance.lock"
+    TODAY=$(date +%Y%m%d)
+    
+    if [ -f "$MAINT_SCRIPT" ] && [ -x "$MAINT_SCRIPT" ]; then
+        # Tenta adquirir o lock atômico (mkdir é operação atôpmica)
+        if mkdir "$LOCK_DIR" 2>/dev/null; then
+            # Verifica a data do marcador compartilhado
+            if [ -f "$FLAG_FILE" ]; then
+                LAST_RUN=$(cat "$FLAG_FILE" 2>/dev/null)
+            else
+                LAST_RUN=""
+            fi
+
+            if [ "$LAST_RUN" = "$TODAY" ]; then
+                log_info "\u2139\ufe0f Manutencao do cache Flatpak ja executada hoje ($TODAY). Nada a fazer."
+            else
+                log_info "\U0001f4c6 Ultima execucao: ${LAST_RUN:-nunca}. Executando manutencao..."
+                if bash "$MAINT_SCRIPT"; then
+                    echo "$TODAY" > "$FLAG_FILE"
+                    log_info "\u2705 Manutencao concluida. Marcador atualizado para $TODAY."
+                else
+                    log_warning "\u26a0\ufe0f Falha na manutencao. Tente novamente amanha."
+                fi
+            fi
+            rmdir "$LOCK_DIR" 2>/dev/null   # libera o lock
+        else
+            log_info "\u23f3 Outra VM esta executando a manutencao. Aguardando..."
+            # Aguarda um pouco e reavalia o marcador
+            sleep 5
+            if [ -f "$FLAG_FILE" ]; then
+                LAST_RUN=$(cat "$FLAG_FILE")
+                if [ "$LAST_RUN" = "$TODAY" ]; then
+                    log_info "\u2705 Manutencao concluida por outra VM (marcador atualizado)."
+                fi
+            fi
+        fi
+    else
+        log_info "\u26a0\ufe0f Script de manutencao nao encontrado ou nao executavel: $MAINT_SCRIPT"
+    fi
+fi
+}
