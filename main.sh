@@ -703,12 +703,12 @@ BG_MODULES=()
 # =============================================================================
 log_info ""
 log_info "========================================="
-log_info "PASSO 10: Limpeza pos-instalacao"
+log_info "PASSO 10: Updates e limpeza pos-instalacao"
 log_info "========================================="
 
 if [ -f /var/log/customization/.sources_converted_to_http ]; then
     rm -f /var/log/customization/.sources_converted_to_http
-    log_info "Sentinel de conversão removido"
+    log_info "Sentinela de conversão removido"
 fi
 
 log_info "Realizando limpeza de pacotes..."
