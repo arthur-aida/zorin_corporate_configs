@@ -50,4 +50,5 @@ fi
 # Verificação de integridade do repositório (leve)
 ostree fsck --repo="$REPO_PATH" --quiet 2>/dev/null
 
+rmdir /mnt/.ostree/repo/.maintenance.lock 2>/dev/null   # libera o lock
 log "Manutenção concluída."
