@@ -711,7 +711,7 @@ if [ -f /var/log/customization/.sources_converted_to_http ]; then
     log_info "Sentinela de conversão removido"
 fi
 
-log_info "Realizando limpeza de pacotes..."
+log_info "Realizando atualizações e remoção de pacotes antigos..."
 {
     wait_for_apt_unlock
     echo "=== Início da limpeza automática - $(date) ==="
@@ -721,7 +721,7 @@ log_info "Realizando limpeza de pacotes..."
     apt-get clean  -qq 2>&1
     echo "=== Fim da limpeza - $(date) ==="
 } > "${LOG_DIR}/cleanup.log" 2>&1
-log_info "Limpeza de pacotes concluída."
+log_info "Remoção de pacotes antigos concluída."
 
 log_info "Verificando necessidade de restauração de fontes..."
 if [ -f "/etc/apt/sources.list.d/backup_conversion/.backup_original_feito" ]; then
