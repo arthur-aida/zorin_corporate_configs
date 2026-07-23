@@ -836,6 +836,17 @@ ostree-repo-maintenance-mark() {
 # Manutençãoo diária do cache NFS (prune de versões antigas)
 # Agora com marcador compartilhado via NFS e lock atômico
 # =============================================================================
+
+# Verifica se o cache NFS já está montado
+CACHE_AVAILABLE=false
+if mountpoint -q /mnt && [ -d /mnt/.ostree/repo ]; then
+    CACHE_AVAILABLE=true
+    log_info "✅ Cache NFS montado e disponível em /mnt/.ostree/repo"
+else
+    log_info "⚠️ Cache NFS não montado ou sem repositório."
+    exit
+fi
+
 if [ "$CACHE_AVAILABLE" = true ] && [ -w /mnt/.ostree/repo ]; then
     MAINT_SCRIPT="/usr/local/bin/flatpak-cache-maintenance.sh"
     FLAG_FILE="/mnt/.ostree/repo/.last-maintenance"  # \u2190 marcador no NFS
@@ -843,7 +854,7 @@ if [ "$CACHE_AVAILABLE" = true ] && [ -w /mnt/.ostree/repo ]; then
     TODAY=$(date +%Y%m%d)
     
     if [ -f "$MAINT_SCRIPT" ] && [ -x "$MAINT_SCRIPT" ]; then
-        # Tenta adquirir o lock atômico (mkdir é operação atôpmica)
+        # Tenta adquirir o lock atômico (mkdir = operacao atomica)
         if mkdir "$LOCK_DIR" 2>/dev/null; then
             # Verifica a data do marcador compartilhado
             if [ -f "$FLAG_FILE" ]; then
@@ -863,11 +874,10 @@ if [ "$CACHE_AVAILABLE" = true ] && [ -w /mnt/.ostree/repo ]; then
                     log_warning "\u26a0\ufe0f Falha na manutencao. Tente novamente amanha."
                 fi
             fi
-            rmdir "$LOCK_DIR" 2>/dev/null   # libera o lock
         else
             log_info "\u23f3 Outra VM esta executando a manutencao. Aguardando..."
             # Aguarda um pouco e reavalia o marcador
-            sleep 5
+            sleep 50
             if [ -f "$FLAG_FILE" ]; then
                 LAST_RUN=$(cat "$FLAG_FILE")
                 if [ "$LAST_RUN" = "$TODAY" ]; then
@@ -879,4 +889,8 @@ if [ "$CACHE_AVAILABLE" = true ] && [ -w /mnt/.ostree/repo ]; then
         log_info "\u26a0\ufe0f Script de manutencao nao encontrado ou nao executavel: $MAINT_SCRIPT"
     fi
 fi
+rmdir "$LOCK_DIR" 2>/dev/null   # libera o lock
+}
+
+
 }
