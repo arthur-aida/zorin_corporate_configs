@@ -711,10 +711,10 @@ if [ -f /var/log/customization/.sources_converted_to_http ]; then
     log_info "Sentinela de conversão removido"
 fi
 
-log_info "Realizando atualizações e remoção de pacotes antigos..."
+log_info "Atualizando pacotes e removendo antigos..."
 {
     wait_for_apt_unlock
-    echo "=== Início da limpeza automática - $(date) ==="
+    echo "=== Início da atualizacao de pacotes e remocao dos antigos - $(date) ==="
     apt full-upgrade -y  -qq 2>&1
     flatpak update -y --noninteractive  2>&1
     apt-get autoremove -y  -qq 2>&1
