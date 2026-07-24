@@ -836,5 +836,5 @@ export hostsdeny="${hostsdeny:-}"
 export ntpserver="${ntpserver:-}"
 EOF
 chmod 644 /etc/customization/active-profile.env
-
+umount -af
 exit 0
