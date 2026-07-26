@@ -67,7 +67,7 @@ fi
 # =============================================================================
 if [ "$CACHE_AVAILABLE" = true ]; then
     log_info "📦 Instalando via cache NFS (sideload)..."
-    log_info "ℹ️ Instalando a partir do cache NFS (sem download) – o progresso pode mostrar 0%, mas a instalação está ocorrendo normalmente."
+    log_info "ℹ️ Instalando a partir do cache NFS (sem download)"
     if flatpak install --sideload-repo=/mnt/.ostree/repo -y "${packages[@]}" 2>/dev/null; then
         log_info "✅ Todos os pacotes instalados do cache"
     else
@@ -80,7 +80,9 @@ else
 fi
 flatpak update -y --noninteractive
 
-# Garantir que o diretório de exports do Flatpak esteja no XDG_DATA_DIRS
+# =============================================================================
+# Configuração XDG_DATA_DIRS (mantida)
+# =============================================================================
 export_dir="/var/lib/flatpak/exports/share"
 profile_script="/etc/profile.d/flatpak-exports.sh"
 
@@ -97,42 +99,31 @@ EOF
     chmod 0644 "$profile_script"
 fi
 
-# Atualizar base de dados de desktop imediatamente (se disponível)
 if command -v update-desktop-database >/dev/null 2>&1 && [ -d "$export_dir/applications" ]; then
     update-desktop-database "$export_dir/applications" 2>/dev/null || true
 fi
 
-
 # =============================================================================
-# Sincronização para o cache NFS (create-usb) - SEMPRE executa
-# OTIMIZAÇÃO 1.6: verifica existência do ref antes de sincronizar
+# Sincronização para o cache NFS (create-usb)
 # =============================================================================
 if [ "$CACHE_AVAILABLE" = true ] && [ -w /mnt/.ostree/repo ]; then
-    log_info "🔄 Sincronizando pacotes para o cache NFS (create-usb)..."
+    log_info "🔄 Sincronizando pacotes para o cache NFS..."
     for pkg in "${packages[@]}"; do
-        # Verifica se o ref já existe no repositório NFS
         if ostree refs --repo=/mnt/.ostree/repo 2>/dev/null | grep -q "^${pkg}/"; then
             log_info "   ✅ $pkg já presente no cache NFS. Pulando sincronização."
         else
             log_info "   📤 Sincronizando $pkg..."
             if ! nice -n 19 ionice -c 3 flatpak create-usb --allow-partial /mnt "$pkg" 2>/dev/null; then
-    		log_warning "   ⚠️ Falha ao sincronizar $pkg (será ignorado)"
-    		ret=$?
-    		# Opcional: registrar o nome do pacote para relatório posterior
+                log_warning "   ⚠️ Falha ao sincronizar $pkg"
             else
-               ret=0
-	    fi
-            if [ $ret -eq 0 ]; then
-                log_info "   ✅ $pkg sincronizado (ou já presente)"
-            else
-                log_warning "   ⚠️ Falha ao sincronizar $pkg (pode já estar ok)"
+                log_info "   ✅ $pkg sincronizado"
             fi
         fi
     done
 fi
 
 # =============================================================================
-# Remoção de pacotes conforme perfil (mesmo do flatcache.sh)
+# Remoção de pacotes conforme perfil
 # =============================================================================
 if [ "${ENABLE_HEALTH_APPS:-false}" = "false" ]; then
     log_info "🗑️ Removendo pacotes não-domésticos..."
@@ -140,7 +131,7 @@ if [ "${ENABLE_HEALTH_APPS:-false}" = "false" ]; then
     rm -f /etc/klnagent64*.deb /etc/kesl_12*.deb /etc/kesl-gui_12*.deb /etc/KSEzorin.sh 2>/dev/null || true
 fi
 
-# Kaspersky (apenas saúde) – assume que /tmp/cache está montado pelo main.sh
+# Kaspersky
 if [ "${ENABLE_HEALTH_APPS:-false}" = "true" ] && [ -d /tmp/cache ] && [ -f /tmp/cache/KSEzorin.sh ]; then
     log_info "🔒 Copiando pacotes Kaspersky..."
     cp -f /tmp/cache/klnagent64*.deb /etc/ 2>/dev/null || true
@@ -150,8 +141,12 @@ if [ "${ENABLE_HEALTH_APPS:-false}" = "true" ] && [ -d /tmp/cache ] && [ -f /tmp
     sync
 fi
 
+# =============================================================================
+# MARCA MANUTENÇÃO (NÃO EXECUTA O SCRIPT DIRETAMENTE - apenas marca flag)
+# =============================================================================
+# A função agora apenas verifica se a manutenção já foi feita hoje e,
+# se necessário, chama O SCRIPT DE MANUTENÇÃO UMA ÚNICA VEZ
 ostree-repo-maintenance-mark
-rmdir /mnt/.ostree/repo/.maintenance.lock 2>/dev/null   # libera o lock
 
 log_info "✅ Instalação Flatpak concluída"
 log_module_end "11-flatpak-cache"
