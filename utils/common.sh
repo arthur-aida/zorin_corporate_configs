@@ -833,61 +833,63 @@ run_preflight() {
 
 ostree-repo-maintenance-mark() {
 # =============================================================================
-# Manutenção diária do cache NFS (prune de versões antigas)
-# Agora com marcador compartilhado via NFS e lock atômico
+# Manutenção diária do cache NFS - APENAS MARCA SE PRECISA EXECUTAR
+# NÃO executa o script de manutenção diretamente (evita loop)
 # =============================================================================
 
-# Verifica se o cache NFS já está montado
-CACHE_AVAILABLE=false
-if mountpoint -q /mnt && [ -d /mnt/.ostree/repo ]; then
-    CACHE_AVAILABLE=true
-    log_info "✅ Cache NFS montado e disponível em /mnt/.ostree/repo"
-else
-    log_info "⚠️ Cache NFS não montado ou sem repositório."
-    exit
-fi
+    CACHE_AVAILABLE=false
+    if mountpoint -q /mnt && [ -d /mnt/.ostree/repo ]; then
+        CACHE_AVAILABLE=true
+        log_info "✅ Cache NFS disponível em /mnt/.ostree/repo"
+    else
+        log_info "⚠️ Cache NFS não montado ou sem repositório."
+        return 0
+    fi
 
-if [ "$CACHE_AVAILABLE" = true ] && [ -w /mnt/.ostree/repo ]; then
-    MAINT_SCRIPT="/usr/local/bin/flatpak-cache-maintenance.sh"
-    FLAG_FILE="/mnt/.ostree/repo/.last-maintenance"  # \u2190 marcador no NFS
-    LOCK_DIR="/mnt/.ostree/repo/.maintenance.lock"
-    TODAY=$(date +%Y%m%d)
-    
-    if [ -f "$MAINT_SCRIPT" ] && [ -x "$MAINT_SCRIPT" ]; then
-        # Tenta adquirir o lock atômico (mkdir = operacao atomica)
-        if mkdir "$LOCK_DIR" 2>/dev/null; then
-            # Verifica a data do marcador compartilhado
-            if [ -f "$FLAG_FILE" ]; then
-                LAST_RUN=$(cat "$FLAG_FILE" 2>/dev/null)
-            else
-                LAST_RUN=""
-            fi
+    if [ "$CACHE_AVAILABLE" = true ] && [ -w /mnt/.ostree/repo ]; then
+        MAINT_SCRIPT="/usr/local/bin/flatpak-cache-maintenance.sh"
+        FLAG_FILE="/mnt/.ostree/repo/.last-maintenance"
+        LOCK_DIR="/mnt/.ostree/repo/.maintenance.lock"
+        TODAY=$(date +%Y%m%d)
 
+        # Verifica marcador de execução diária
+        if [ -f "$FLAG_FILE" ]; then
+            LAST_RUN=$(cat "$FLAG_FILE" 2>/dev/null)
             if [ "$LAST_RUN" = "$TODAY" ]; then
-                log_info " Manutencao do cache Flatpak ja executada hoje ($TODAY). Nada a fazer."
-            else
-                log_info " Ultima execucao: ${LAST_RUN:-nunca}. Executando manutencao..."
+                log_info "📅 Manutenção do cache Flatpak já executada hoje ($TODAY). Nada a fazer."
+                return 0
+            fi
+        fi
+
+        # Tenta adquirir lock atômico (apenas para atualizar o marcador)
+        if mkdir "$LOCK_DIR" 2>/dev/null; then
+            log_info "🔄 Executando manutenção do cache Flatpak..."
+
+            # CHAMA O SCRIPT UMA ÚNICA VEZ (sem loop)
+            if [ -f "$MAINT_SCRIPT" ] && [ -x "$MAINT_SCRIPT" ]; then
                 if bash "$MAINT_SCRIPT"; then
                     echo "$TODAY" > "$FLAG_FILE"
-                    log_info "  Manutencao concluida. Marcador atualizado para $TODAY."
+                    log_info "✅ Manutenção concluída. Marcador atualizado para $TODAY."
                 else
-                    log_warning " Falha na manutencao. Tente novamente amanha."
+                    log_warning "⚠️ Falha na manutenção. Marcador NÃO atualizado."
                 fi
+            else
+                log_warning "⚠️ Script de manutenção não encontrado ou não executável: $MAINT_SCRIPT"
             fi
+
+            # Libera lock após execução
+            rmdir "$LOCK_DIR" 2>/dev/null || true
         else
-            log_info " Outra VM esta executando a manutencao. Aguardando..."
-            # Aguarda um pouco e reavalia o marcador
+            log_info "🔒 Outra VM está executando a manutenção. Aguardando..."
             sleep 5
+            # Reavalia marcador (pode ter sido atualizado por outra VM)
             if [ -f "$FLAG_FILE" ]; then
                 LAST_RUN=$(cat "$FLAG_FILE")
                 if [ "$LAST_RUN" = "$TODAY" ]; then
-                    log_info " Manutencao concluida por outra VM (marcador atualizado)."
+                    log_info "✅ Manutenção concluída por outra VM (marcador atualizado)."
                 fi
             fi
         fi
-    else
-        log_info " Script de manutencao nao encontrado ou nao executavel: $MAINT_SCRIPT"
     fi
-fi
 }
-
++
