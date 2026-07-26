@@ -24,9 +24,9 @@ fi
 # Verifica se o cache NFS já está montado pelo main.sh
 # =============================================================================
 CACHE_AVAILABLE=false
-if mountpoint -q /mnt && [ -d /mnt/.ostree/repo ]; then
+if mountpoint -q /mnt && [ -d "$FLATPAK_MAINT_REPO_PATH" ]; then
     CACHE_AVAILABLE=true
-    log_info "✅ Cache NFS disponível em /mnt/.ostree/repo (montado pelo main.sh)"
+    log_info "✅ Cache NFS disponível em $FLATPAK_MAINT_REPO_PATH (montado pelo main.sh)"
 else
     log_info "⚠️ Cache NFS não montado ou sem repositório. Instalando da internet."
 fi
@@ -68,7 +68,7 @@ fi
 if [ "$CACHE_AVAILABLE" = true ]; then
     log_info "📦 Instalando via cache NFS (sideload)..."
     log_info "ℹ️ Instalando a partir do cache NFS (sem download)"
-    if flatpak install --sideload-repo=/mnt/.ostree/repo -y "${packages[@]}" 2>/dev/null; then
+    if flatpak install --sideload-repo="$FLATPAK_MAINT_REPO_PATH" -y "${packages[@]}" 2>/dev/null; then
         log_info "✅ Todos os pacotes instalados do cache"
     else
         log_warning "Falha no cache, instalando da internet"
@@ -81,7 +81,7 @@ fi
 flatpak update -y --noninteractive
 
 # =============================================================================
-# Configuração XDG_DATA_DIRS (mantida)
+# Configuração XDG_DATA_DIRS
 # =============================================================================
 export_dir="/var/lib/flatpak/exports/share"
 profile_script="/etc/profile.d/flatpak-exports.sh"
@@ -106,10 +106,10 @@ fi
 # =============================================================================
 # Sincronização para o cache NFS (create-usb)
 # =============================================================================
-if [ "$CACHE_AVAILABLE" = true ] && [ -w /mnt/.ostree/repo ]; then
+if [ "$CACHE_AVAILABLE" = true ] && [ -w "$FLATPAK_MAINT_REPO_PATH" ]; then
     log_info "🔄 Sincronizando pacotes para o cache NFS..."
     for pkg in "${packages[@]}"; do
-        if ostree refs --repo=/mnt/.ostree/repo 2>/dev/null | grep -q "^${pkg}/"; then
+        if ostree refs --repo="$FLATPAK_MAINT_REPO_PATH" 2>/dev/null | grep -q "^${pkg}/"; then
             log_info "   ✅ $pkg já presente no cache NFS. Pulando sincronização."
         else
             log_info "   📤 Sincronizando $pkg..."
@@ -142,10 +142,10 @@ if [ "${ENABLE_HEALTH_APPS:-false}" = "true" ] && [ -d /tmp/cache ] && [ -f /tmp
 fi
 
 # =============================================================================
-# MARCA MANUTENÇÃO (NÃO EXECUTA O SCRIPT DIRETAMENTE - apenas marca flag)
+# MARCA MANUTENÇÃO (dispatcher - NÃO EXECUTA O SCRIPT DIRETAMENTE)
+# A função verifica se a manutenção já foi feita hoje e, se necessário,
+# chama O SCRIPT DE MANUTENÇÃO UMA ÚNICA VEZ
 # =============================================================================
-# A função agora apenas verifica se a manutenção já foi feita hoje e,
-# se necessário, chama O SCRIPT DE MANUTENÇÃO UMA ÚNICA VEZ
 ostree-repo-maintenance-mark
 
 log_info "✅ Instalação Flatpak concluída"
