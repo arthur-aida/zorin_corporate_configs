@@ -17,6 +17,16 @@ export NFS_PORT="2049"
 export APT_CACHER_PORT="3144"
 
 # =============================================================================
+# CONSTANTES PARA MANUTENÇÃO FLATPAK
+# =============================================================================
+FLATPAK_MAINT_REPO_PATH="/mnt/.ostree/repo"
+FLATPAK_MAINT_LOG_FILE="/var/log/flatpak-cache-maintenance.log"
+FLATPAK_MAINT_LOCK_DIR="/mnt/.ostree/repo/.maintenance.lock"
+FLATPAK_MAINT_FLAG_FILE="/mnt/.ostree/repo/.last-maintenance"
+FLATPAK_MAINT_LOCK_TIMEOUT=30
+FLATPAK_MAINT_STALE_THRESHOLD=3600  # 1 hora
+
+# =============================================================================
 # FUNÇÕES DE UTILITÁRIO
 # =============================================================================
 
@@ -740,8 +750,7 @@ run_preflight() {
     
     # -------------------------------------------------------------------------
     # 1. Verificação do servidor NFS (prioridade para perfil)
-    # -------------------------------------------------------------------------
-    log_info "1. Verificando servidor NFS..."
+    # -------------------------------------------------------------------------    log_info "1. Verificando servidor NFS..."
     
     local NFS_SERVER=""
     local NFS_PORT="${NFSPORT:-$NFS_PORT}"   # padrão 2049, sobrescrito por NFSPORT do perfil
@@ -831,65 +840,227 @@ run_preflight() {
     return 0
 }
 
-ostree-repo-maintenance-mark() {
 # =============================================================================
-# Manutenção diária do cache NFS - APENAS MARCA SE PRECISA EXECUTAR
-# NÃO executa o script de manutenção diretamente (evita loop)
+# FUNÇÕES DE MANUTENÇÃO FLATPAK (CENTRALIZADAS)
 # =============================================================================
 
-    CACHE_AVAILABLE=false
-    if mountpoint -q /mnt && [ -d /mnt/.ostree/repo ]; then
-        CACHE_AVAILABLE=true
-        log_info "✅ Cache NFS disponível em /mnt/.ostree/repo"
+# -----------------------------------------------------------------------------
+# flatpak_maint_log - Log para manutenção Flatpak
+# -----------------------------------------------------------------------------
+flatpak_maint_log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" | tee -a "$FLATPAK_MAINT_LOG_FILE"
+}
+
+# -----------------------------------------------------------------------------
+# flatpak_maint_ensure_nfs - Garante que o NFS está montado
+# -----------------------------------------------------------------------------
+flatpak_maint_ensure_nfs() {
+    # Se já está montado, apenas verifica
+    if mountpoint -q /mnt && [ -d "$FLATPAK_MAINT_REPO_PATH" ]; then
+        flatpak_maint_log "✅ Repositório NFS já montado"
+        return 0
+    fi
+
+    # Carrega perfil ativo se não veio do main.sh
+    if [ -z "${MAIN_ACTIVE:-}" ] && [ -f /etc/customization/active-profile.env ]; then
+        flatpak_maint_log "📋 Carregando perfil ativo para montagem NFS"
+        set -a
+        . /etc/customization/active-profile.env
+        set +a
+    fi
+
+    flatpak_maint_log "🔄 Montando NFS..."
+    if mount_nfs_direct; then
+        flatpak_maint_log "✅ NFS montado com sucesso"
+        return 0
     else
+        flatpak_maint_log "❌ Falha ao montar NFS"
+        return 1
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# flatpak_maint_acquire_lock - Adquire lock com timeout e stale detection
+# -----------------------------------------------------------------------------
+flatpak_maint_acquire_lock() {
+    local lock_dir="$1"
+    local timeout="${2:-$FLATPAK_MAINT_LOCK_TIMEOUT}"
+    local elapsed=0
+
+    # Verifica lock órfão
+    if [ -d "$lock_dir" ]; then
+        local lock_age=$(($(date +%s) - $(stat -c %Y "$lock_dir" 2>/dev/null || echo 0)))
+        if [ "$lock_age" -gt "$FLATPAK_MAINT_STALE_THRESHOLD" ]; then
+            flatpak_maint_log "⚠️ Lock órfão com $lock_age segundos. Removendo..."
+            rmdir "$lock_dir" 2>/dev/null || true
+        fi
+    fi
+
+    # Tenta adquirir lock
+    while ! mkdir "$lock_dir" 2>/dev/null; do
+        if [ "$elapsed" -ge "$timeout" ]; then
+            flatpak_maint_log "❌ Timeout aguardando lock (${timeout}s)"
+            return 1
+        fi
+        flatpak_maint_log "⏳ Aguardando lock de outra VM (${elapsed}s)..."
+        sleep 2
+        elapsed=$((elapsed + 2))
+    done
+
+    flatpak_maint_log "🔒 Lock adquirido"
+    return 0
+}
+
+# -----------------------------------------------------------------------------
+# flatpak_maint_release_lock - Libera lock
+# -----------------------------------------------------------------------------
+flatpak_maint_release_lock() {
+    local lock_dir="$1"
+    if rmdir "$lock_dir" 2>/dev/null; then
+        flatpak_maint_log "🔓 Lock liberado"
+        return 0
+    else
+        flatpak_maint_log "⚠️ Falha ao liberar lock (pode já estar liberado)"
+        return 1
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# flatpak_maint_do_ostree - Executa ostree prune e fsck (PONTO ÚNICO DE EXECUÇÃO)
+# -----------------------------------------------------------------------------
+flatpak_maint_do_ostree() {
+    local repo="$1"
+    local errors=0
+
+    flatpak_maint_log "========================================="
+    flatpak_maint_log "🔄 INICIANDO MANUTENÇÃO OSTREE"
+    flatpak_maint_log "   Repositório: $repo"
+    flatpak_maint_log "   Data: $(date)"
+    flatpak_maint_log "========================================="
+
+    # 1. Verifica integridade ANTES do prune
+    flatpak_maint_log "🔍 [1/3] Verificando integridade (fsck)..."
+    if ostree fsck --repo="$repo" --quiet 2>&1 | tee -a "$FLATPAK_MAINT_LOG_FILE"; then
+        flatpak_maint_log "   ✅ fsck OK"
+    else
+        flatpak_maint_log "   ⚠️ fsck reportou avisos - continuando"
+        errors=$((errors + 1))
+    fi
+
+    # 2. EXECUTA PRUNE - MANTÉM ÚLTIMAS 4 VERSÕES
+    flatpak_maint_log "🧹 [2/3] Removendo versões antigas (prune --depth=4)..."
+    local prune_output
+    if prune_output=$(ostree prune --repo="$repo" --depth=4 --refs-only 2>&1); then
+        flatpak_maint_log "   ✅ Prune executado com sucesso"
+        echo "$prune_output" | while IFS= read -r line; do
+            [ -n "$line" ] && flatpak_maint_log "   $line"
+        done
+    else
+        local ret=$?
+        flatpak_maint_log "   ❌ Falha no prune (código $ret)"
+        echo "$prune_output" | while IFS= read -r line; do
+            [ -n "$line" ] && flatpak_maint_log "   ERRO: $line"
+        done
+        errors=$((errors + 2))
+    fi
+
+    # 3. Verifica integridade DEPOIS do prune
+    flatpak_maint_log "🔍 [3/3] Verificando integridade pós-prune..."
+    if ostree fsck --repo="$repo" --quiet 2>&1 | tee -a "$FLATPAK_MAINT_LOG_FILE"; then
+        flatpak_maint_log "   ✅ fsck pós-prune OK"
+    else
+        flatpak_maint_log "   ⚠️ fsck pós-prune reportou avisos"
+        errors=$((errors + 1))
+    fi
+
+    flatpak_maint_log "========================================="
+    if [ $errors -eq 0 ]; then
+        flatpak_maint_log "✅ MANUTENÇÃO CONCLUÍDA COM SUCESSO"
+    else
+        flatpak_maint_log "⚠️ MANUTENÇÃO CONCLUÍDA COM $errors AVISOS/ERROS"
+    fi
+    flatpak_maint_log "========================================="
+
+    return $errors
+}
+
+# -----------------------------------------------------------------------------
+# flatpak_maint_is_due - Verifica se a manutenção deve ser executada hoje
+# -----------------------------------------------------------------------------
+flatpak_maint_is_due() {
+    local flag_file="$1"
+    local today=$(date +%Y%m%d)
+
+    if [ -f "$flag_file" ]; then
+        local last_run=$(cat "$flag_file" 2>/dev/null)
+        if [ "$last_run" = "$today" ]; then
+            return 1  # Não deve executar (já foi hoje)
+        fi
+    fi
+    return 0  # Deve executar
+}
+
+# -----------------------------------------------------------------------------
+# flatpak_maint_update_flag - Atualiza marcador de execução diária
+# -----------------------------------------------------------------------------
+flatpak_maint_update_flag() {
+    local flag_file="$1"
+    local today=$(date +%Y%m%d)
+    
+    echo "$today" > "$flag_file"
+    flatpak_maint_log "📝 Marcador atualizado: $today"
+    return 0
+}
+
+# -----------------------------------------------------------------------------
+# flatpak_maint_is_cache_available - Verifica se o cache NFS está disponível
+# -----------------------------------------------------------------------------
+flatpak_maint_is_cache_available() {
+    if mountpoint -q /mnt && [ -d "$FLATPAK_MAINT_REPO_PATH" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# ostree-repo-maintenance-mark - Dispatcher para manutenção
+#   Esta função é chamada pelo 11-flatpak-cache.sh e apenas verifica se
+#   a manutenção deve ser executada. Se necessário, chama o script externo.
+# -----------------------------------------------------------------------------
+ostree-repo-maintenance-mark() {
+    # Verifica se o cache está disponível
+    if ! flatpak_maint_is_cache_available; then
         log_info "⚠️ Cache NFS não montado ou sem repositório."
         return 0
     fi
 
-    if [ "$CACHE_AVAILABLE" = true ] && [ -w /mnt/.ostree/repo ]; then
-        MAINT_SCRIPT="/usr/local/bin/flatpak-cache-maintenance.sh"
-        FLAG_FILE="/mnt/.ostree/repo/.last-maintenance"
-        LOCK_DIR="/mnt/.ostree/repo/.maintenance.lock"
-        TODAY=$(date +%Y%m%d)
+    # Verifica se o repositório é gravável
+    if [ ! -w "$FLATPAK_MAINT_REPO_PATH" ]; then
+        log_warning "⚠️ Repositório não é gravável. Pulando manutenção."
+        return 0
+    fi
 
-        # Verifica marcador de execução diária
-        if [ -f "$FLAG_FILE" ]; then
-            LAST_RUN=$(cat "$FLAG_FILE" 2>/dev/null)
-            if [ "$LAST_RUN" = "$TODAY" ]; then
-                log_info "📅 Manutenção do cache Flatpak já executada hoje ($TODAY). Nada a fazer."
-                return 0
-            fi
-        fi
+    # Verifica se a manutenção já foi executada hoje
+    if ! flatpak_maint_is_due "$FLATPAK_MAINT_FLAG_FILE"; then
+        log_info "📅 Manutenção do cache Flatpak já executada hoje. Nada a fazer."
+        return 0
+    fi
 
-        # Tenta adquirir lock atômico (apenas para atualizar o marcador)
-        if mkdir "$LOCK_DIR" 2>/dev/null; then
-            log_info "🔄 Executando manutenção do cache Flatpak..."
+    # Verifica se o script de manutenção existe
+    local MAINT_SCRIPT="/usr/local/bin/flatpak-cache-maintenance.sh"
+    if [ ! -f "$MAINT_SCRIPT" ] || [ ! -x "$MAINT_SCRIPT" ]; then
+        log_warning "⚠️ Script de manutenção não encontrado ou não executável: $MAINT_SCRIPT"
+        return 1
+    fi
 
-            # CHAMA O SCRIPT UMA ÚNICA VEZ (sem loop)
-            if [ -f "$MAINT_SCRIPT" ] && [ -x "$MAINT_SCRIPT" ]; then
-                if bash "$MAINT_SCRIPT"; then
-                    echo "$TODAY" > "$FLAG_FILE"
-                    log_info "✅ Manutenção concluída. Marcador atualizado para $TODAY."
-                else
-                    log_warning "⚠️ Falha na manutenção. Marcador NÃO atualizado."
-                fi
-            else
-                log_warning "⚠️ Script de manutenção não encontrado ou não executável: $MAINT_SCRIPT"
-            fi
-
-            # Libera lock após execução
-            rmdir "$LOCK_DIR" 2>/dev/null || true
-        else
-            log_info "🔒 Outra VM está executando a manutenção. Aguardando..."
-            sleep 5
-            # Reavalia marcador (pode ter sido atualizado por outra VM)
-            if [ -f "$FLAG_FILE" ]; then
-                LAST_RUN=$(cat "$FLAG_FILE")
-                if [ "$LAST_RUN" = "$TODAY" ]; then
-                    log_info "✅ Manutenção concluída por outra VM (marcador atualizado)."
-                fi
-            fi
-        fi
+    # Executa o script de manutenção (ele gerencia lock, prune, fsck e flag)
+    log_info "🔄 Executando manutenção do cache Flatpak (via dispatcher)..."
+    if bash "$MAINT_SCRIPT" --from-dispatcher; then
+        log_info "✅ Manutenção concluída com sucesso."
+        return 0
+    else
+        log_warning "⚠️ Falha na manutenção. Verifique $FLATPAK_MAINT_LOG_FILE"
+        return 1
     fi
 }
-+
