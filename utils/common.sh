@@ -926,11 +926,12 @@ flatpak_maint_release_lock() {
 }
 
 # -----------------------------------------------------------------------------
-# flatpak_maint_do_ostree - Executa ostree prune e fsck (PONTO ÚNICO DE EXECUÇÃO)
+# flatpak_maint_do_ostree - Executa ostree fsck, repair e prune com validação
 # -----------------------------------------------------------------------------
 flatpak_maint_do_ostree() {
     local repo="$1"
     local errors=0
+    local has_corruption=false
 
     flatpak_maint_log "========================================="
     flatpak_maint_log "🔄 INICIANDO MANUTENÇÃO OSTREE"
@@ -938,43 +939,109 @@ flatpak_maint_do_ostree() {
     flatpak_maint_log "   Data: $(date)"
     flatpak_maint_log "========================================="
 
-    # 1. Verifica integridade ANTES do prune
-    flatpak_maint_log "🔍 [1/3] Verificando integridade (fsck)..."
-    if ostree fsck --repo="$repo" --quiet 2>&1 | tee -a "$FLATPAK_MAINT_LOG_FILE"; then
-        flatpak_maint_log "   ✅ fsck OK"
-    else
-        flatpak_maint_log "   ⚠️ fsck reportou avisos - continuando"
+    # =========================================================================
+    # 1. VERIFICA INTEGRIDADE (fsck) - Detecta corrupção
+    # =========================================================================
+    flatpak_maint_log "🔍 [1/4] Verificando integridade (fsck)..."
+    
+    # Executa fsck e captura saída para detectar erros
+    local fsck_output
+    fsck_output=$(ostree fsck --repo="$repo" 2>&1)
+    local fsck_ret=$?
+    
+    # Verifica se há mensagens de erro na saída
+    if echo "$fsck_output" | grep -q "error:"; then
+        has_corruption=true
+        flatpak_maint_log "   ⚠️ CORRUPÇÃO DETECTADA no fsck!"
+        # Loga as primeiras linhas de erro para diagnóstico
+        echo "$fsck_output" | grep -E "error:" | head -5 | while read -r line; do
+            flatpak_maint_log "   ❌ $line"
+        done
         errors=$((errors + 1))
     fi
-
-    # 2. EXECUTA PRUNE - MANTÉM ÚLTIMAS 4 VERSÕES
-    flatpak_maint_log "🧹 [2/3] Removendo versões antigas (prune --depth=4)..."
-    local prune_output
-    if prune_output=$(ostree prune --repo="$repo" --depth=4 --refs-only 2>&1); then
-        flatpak_maint_log "   ✅ Prune executado com sucesso"
-        echo "$prune_output" | while IFS= read -r line; do
-            [ -n "$line" ] && flatpak_maint_log "   $line"
-        done
+    
+    if [ $fsck_ret -eq 0 ] && [ "$has_corruption" = false ]; then
+        flatpak_maint_log "   ✅ fsck OK - Nenhum erro encontrado"
     else
-        local ret=$?
-        flatpak_maint_log "   ❌ Falha no prune (código $ret)"
-        echo "$prune_output" | while IFS= read -r line; do
-            [ -n "$line" ] && flatpak_maint_log "   ERRO: $line"
-        done
-        errors=$((errors + 2))
+        flatpak_maint_log "   ⚠️ fsck reportou problemas ou corrupção"
     fi
 
-    # 3. Verifica integridade DEPOIS do prune
-    flatpak_maint_log "🔍 [3/3] Verificando integridade pós-prune..."
-    if ostree fsck --repo="$repo" --quiet 2>&1 | tee -a "$FLATPAK_MAINT_LOG_FILE"; then
-        flatpak_maint_log "   ✅ fsck pós-prune OK"
+    # =========================================================================
+    # 2. REPARAÇÃO (se corrupção detectada)
+    # =========================================================================
+    if [ "$has_corruption" = true ]; then
+        flatpak_maint_log "🔧 [2/4] Executando REPARAÇÃO (flatpak repair)..."
+        
+        # Flatpak repair em nível de sistema
+        flatpak_maint_log "   🔧 flatpak repair (sistema)..."
+        if flatpak repair --system 2>&1 | tee -a "$FLATPAK_MAINT_LOG_FILE"; then
+            flatpak_maint_log "   ✅ flatpak repair (sistema) concluído"
+        else
+            flatpak_maint_log "   ⚠️ flatpak repair (sistema) pode ter falhado parcialmente"
+            errors=$((errors + 1))
+        fi
+        
+        # Flatpak repair em nível de usuário (para o usuário atual)
+        flatpak_maint_log "   🔧 flatpak repair --user..."
+        if flatpak repair --user 2>&1 | tee -a "$FLATPAK_MAINT_LOG_FILE"; then
+            flatpak_maint_log "   ✅ flatpak repair --user concluído"
+        else
+            flatpak_maint_log "   ⚠️ flatpak repair --user pode ter falhado parcialmente"
+            # Não incrementa errors aqui, pois é menos crítico
+        fi
+        
+        # Revalida após reparação
+        flatpak_maint_log "🔍 [3/4] Revalidando após reparação..."
+        local recheck_output
+        recheck_output=$(ostree fsck --repo="$repo" 2>&1)
+        if echo "$recheck_output" | grep -q "error:"; then
+            flatpak_maint_log "   ❌ AINDA HÁ CORRUPÇÃO após reparação!"
+            echo "$recheck_output" | grep -E "error:" | head -5 | while read -r line; do
+                flatpak_maint_log "   ❌ $line"
+            done
+            errors=$((errors + 2))
+        else
+            flatpak_maint_log "   ✅ Reparação bem-sucedida - Nenhum erro detectado"
+            has_corruption=false
+        fi
     else
-        flatpak_maint_log "   ⚠️ fsck pós-prune reportou avisos"
-        errors=$((errors + 1))
+        flatpak_maint_log "   ✅ [2/4] Nenhuma corrupção detectada - Pulando reparação"
     fi
 
+    # =========================================================================
+    # 3. PRUNE - Remove versões antigas (se repositório estiver íntegro)
+    # =========================================================================
+    if [ "$has_corruption" = false ]; then
+        flatpak_maint_log "🧹 [4/4] Removendo versões antigas (prune --depth=4)..."
+        local prune_output
+        if prune_output=$(ostree prune --repo="$repo" --depth=4 --refs-only 2>&1); then
+            flatpak_maint_log "   ✅ Prune executado com sucesso"
+            echo "$prune_output" | while IFS= read -r line; do
+                [ -n "$line" ] && flatpak_maint_log "   $line"
+            done
+        else
+            local ret=$?
+            flatpak_maint_log "   ❌ Falha no prune (código $ret)"
+            echo "$prune_output" | while IFS= read -r line; do
+                [ -n "$line" ] && flatpak_maint_log "   ERRO: $line"
+            done
+            errors=$((errors + 2))
+        fi
+    else
+        flatpak_maint_log "⚠️ Pulando prune devido a corrupção persistente"
+    fi
+
+    # =========================================================================
+    # 4. RELATÓRIO FINAL
+    # =========================================================================
     flatpak_maint_log "========================================="
-    if [ $errors -eq 0 ]; then
+    if [ "$has_corruption" = true ]; then
+        flatpak_maint_log "❌ REPOSITÓRIO AINDA CORROMPIDO!"
+        flatpak_maint_log "   Execute manualmente:"
+        flatpak_maint_log "   flatpak repair --system"
+        flatpak_maint_log "   flatpak repair --user"
+        errors=$((errors + 4))
+    elif [ $errors -eq 0 ]; then
         flatpak_maint_log "✅ MANUTENÇÃO CONCLUÍDA COM SUCESSO"
     else
         flatpak_maint_log "⚠️ MANUTENÇÃO CONCLUÍDA COM $errors AVISOS/ERROS"
@@ -1025,8 +1092,6 @@ flatpak_maint_is_cache_available() {
 
 # -----------------------------------------------------------------------------
 # ostree-repo-maintenance-mark - Dispatcher para manutenção
-#   Esta função é chamada pelo 11-flatpak-cache.sh e apenas verifica se
-#   a manutenção deve ser executada. Se necessário, chama o script externo.
 # -----------------------------------------------------------------------------
 ostree-repo-maintenance-mark() {
     # Verifica se o cache está disponível
@@ -1041,12 +1106,6 @@ ostree-repo-maintenance-mark() {
         return 0
     fi
 
-    # Verifica se a manutenção já foi executada hoje
-    if ! flatpak_maint_is_due "$FLATPAK_MAINT_FLAG_FILE"; then
-        log_info "📅 Manutenção do cache Flatpak já executada hoje. Nada a fazer."
-        return 0
-    fi
-
     # Verifica se o script de manutenção existe
     local MAINT_SCRIPT="/usr/local/bin/flatpak-cache-maintenance.sh"
     if [ ! -f "$MAINT_SCRIPT" ] || [ ! -x "$MAINT_SCRIPT" ]; then
@@ -1054,9 +1113,15 @@ ostree-repo-maintenance-mark() {
         return 1
     fi
 
-    # Executa o script de manutenção (ele gerencia lock, prune, fsck e flag)
+    # Verifica se a manutenção já foi executada hoje
+    if ! flatpak_maint_is_due "$FLATPAK_MAINT_FLAG_FILE"; then
+        log_info "📅 Manutenção do cache Flatpak já executada hoje. Nada a fazer."
+        return 0
+    fi
+
+    # Executa o script de manutenção com --force para garantir reparo
     log_info "🔄 Executando manutenção do cache Flatpak (via dispatcher)..."
-    if bash "$MAINT_SCRIPT" --from-dispatcher; then
+    if bash "$MAINT_SCRIPT" --from-dispatcher --force; then
         log_info "✅ Manutenção concluída com sucesso."
         return 0
     else
