@@ -551,7 +551,7 @@ main() {
     # Define entrada no cron a ser adicionada para manutenção do cache estatico e apt-cacher-ng
     CRON_ENTRIES=(
     "@reboot root find /partimag/cache/ -type f -atime +90 -delete"
-    '0 2 */2 * * sleep $((RANDOM \% 14400)) && ACNGREQ="doExpire=Start+Expiration&byName=1&byDir=1&checkSum=1&truncDamaged=1&purgeUnref=1" /usr/lib/apt-cacher-ng/acngtool maint -c /etc/apt-cacher-ng > /dev/null 2>&1'
+    '0 2 */2 * * sleep $((RANDOM % 14400)) && ACNGREQ="doExpire=Start+Expiration&byName=1&byDir=1&checkSum=1&truncDamaged=1&purgeUnref=1" /usr/lib/apt-cacher-ng/acngtool maint -c /etc/apt-cacher-ng > /dev/null 2>&1'
     )
     # Verifica e adiciona a entrada se não existir
     for entry in "${CRON_ENTRIES[@]}"; do
