@@ -29,7 +29,7 @@ Copyright (c) 2026 [arthur.aida@gmail.com]
 
 11-Leia as orientações do item 12-. Para otimizar os processos acima de forma segura e automatizada, selecione o texto abaixo, copie e cole (COMO UMA ÚNICA LINHA) no terminal linux de uma VM:
 
-    sudo apt install git -y && rm -Rf /tmp/zorin_corporate_configs && git clone https://github.com/arthur-aida/zorin_corporate_configs.git /tmp/zorin_corporate_configs/ && sudo bash -c "mkdir -p /etc/customization/ /var/log/customization-persist/ && cp -r /tmp/zorin_corporate_configs/* /etc/customization/ && cd /etc/customization/ && chmod +x main.sh && ./main.sh 3 2>&1 | tee /var/log/customization-persist/main.log"
+    sudo apt install git -y && rm -Rf /tmp/zorin_corporate_configs && git clone https://github.com/arthur-aida/zorin_corporate_configs.git /tmp/zorin_corporate_configs/ && sudo bash -c "mkdir -p /etc/customization/ /var/log/customization-persist/ && cp -r /tmp/zorin_corporate_configs/* /etc/customization/ && cd /etc/customization/ && chmod +x main.sh && ./main.sh 2 2>&1 | tee /var/log/customization-persist/main.log"
 
 12-POR SEGURANÇA INSPECIONE O CONTEÚDO DE TODOS OS SCRIPTS ANTES DE EXECUTAR QUAISQUER DOS COMANDOS ACIMA.
 
