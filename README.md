@@ -53,3 +53,17 @@ NUNCA EXECUTE OU TESTE SCRIPTS DIRETAMENTE EM SUA MÁQUINA DE PRODUÇÃO. Baixe 
     • Análise de GitHub Actions: Inspecione a pasta .github/workflows/. Verifique se há injeções de variáveis de ambiente não sanitizadas (${{ github.event... }}) que permitam a execução de códigos arbitrários durante a integração contínua (CI).
     • Máquinas Virtuais Descartáveis: Use gerenciadores como o VirtualBox ou KVM (adotado neste projeto) configurados em modo Host-only (sem acesso à sua rede local) para prevenir movimentação lateral caso o script seja um verme (worm).
     • Monitoramento de Chamadas: Ao rodar o script no ambiente isolado, use o comando strace para monitorar quais arquivos o script tenta abrir, ler ou modificar.
+
+Se esse projeto for útil para você, ajude-o a engajá-lo e levar essa solução para mais pessoas!
+
+### Formas de Contribuir
+
+Você pode fazer uma contribuição única ou recorrente de forma rápida e segura. Escolha a opção ideal para você:
+
+* **Doação Direta via Pix (Copia e Cola / QR Code):**
+
+![Veja o QR Code do Pix] https://nubank.com.br/cobrar/1jbqoi/6a817c80-a557-47cb-87fb-f186940931da 
+Para contribuir via Pix acesse o QR-Code em https://nubank.com.br/cobrar/1jbqoi/6a817c80-a557-47cb-87fb-f186940931da
+
+*Sua contribuição, não importa o valor, é o combustível para manter este repositório ativo e atualizado. Muito obrigado!*
+
