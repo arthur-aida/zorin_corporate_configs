@@ -64,7 +64,7 @@ Você pode fazer uma contribuição única ou recorrente de forma rápida e segu
 #### Doação Direta via Pix (Copia e Cola / QR Code)
 
 Para contribuir via Pix, acesse diretamente o link:  
-🔗 [Acesse o QR-Code de Cobrança](https://nubank.com.br/cobrar/1jbqoi/6a817c80-a557-47cb-87fb-f186940931da)
+🔗 [Acesse o QR-Code de Doação](https://nubank.com.br/cobrar/1jbqoi/6a817c80-a557-47cb-87fb-f186940931da)
 
 ---
 
