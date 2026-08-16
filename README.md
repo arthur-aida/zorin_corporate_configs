@@ -62,13 +62,12 @@ Se esse projeto for útil para você, ajude-o a engajá-lo e levar essa soluçã
 Você pode fazer uma contribuição única ou recorrente de forma rápida e segura. Escolha a opção ideal para você:
 
 #### Doação Direta via Pix (Copia e Cola / QR Code)
-[![Pix](https://nubank.com.br/cobrar/1jbqoi/6a817c80-a557-47cb-87fb-f186940931da)
 
-Para contribuir via Pix, clique no botão acima ou acesse diretamente pelo link:  
+Para contribuir via Pix, acesse diretamente o link:  
 🔗 [Acesse o QR-Code de Cobrança](https://nubank.com.br/cobrar/1jbqoi/6a817c80-a557-47cb-87fb-f186940931da)
 
 ---
 
-> 💡 **Sua contribuição, não importa o valor, é o combustível para manter este repositório ativo e atualizado. Muito obrigado!**
+>  **Sua contribuição, não importa o valor, é o combustível para manter este repositório ativo e atualizado. Muito obrigado!**
 
 
