@@ -62,7 +62,7 @@ Se esse projeto for útil para você, ajude-o a engajá-lo e levar essa soluçã
 Você pode fazer uma contribuição única ou recorrente de forma rápida e segura. Escolha a opção ideal para você:
 
 #### Doação Direta via Pix (Copia e Cola / QR Code)
-[![Pix](https://shields.io)](https://nubank.com.br/cobrar/1jbqoi/6a817c80-a557-47cb-87fb-f186940931da)
+[![Pix](https://nubank.com.br/cobrar/1jbqoi/6a817c80-a557-47cb-87fb-f186940931da)
 
 Para contribuir via Pix, clique no botão acima ou acesse diretamente pelo link:  
 🔗 [Acesse o QR-Code de Cobrança](https://nubank.com.br/cobrar/1jbqoi/6a817c80-a557-47cb-87fb-f186940931da)
