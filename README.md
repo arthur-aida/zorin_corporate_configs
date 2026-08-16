@@ -6,32 +6,32 @@ Copyright (c) 2026 [arthur.aida@gmail.com]
 
 ====RECOMENDA-SE LER A DOCUMENTAÇÃO NA PASTA Docs ANTES DE PROSSEGUIR====
 
-1-Abra um terminal e digite <cd /tmp/>. Faça o download dos scripts com:
+1- Abra um terminal e digite <cd /tmp/>. Faça o download dos scripts com:
 <wget https://github.com/arthur-aida/zorin_corporate_configs/archive/refs/heads/main.zip -O /tmp/customization.zip>
 
-2-Descompate-o com o comando <unzip -q /tmp/customization.zip -d /tmp/customization/> 
+2- Descompate-o com o comando <unzip -q /tmp/customization.zip -d /tmp/customization/> 
 
-3-Mude o caminho para /tmp/customization/zorin_corporate_configs-main com <cd /tmp/customization/zorin_corporate_configs-main>
+3- Mude o caminho para /tmp/customization/zorin_corporate_configs-main com <cd /tmp/customization/zorin_corporate_configs-main>
 
-4-Eleve-se ao ambiente do root com sudo su e forneça a senha do administrador
+4- Eleve-se ao ambiente do root com sudo su e forneça a senha do administrador
 
-5-Crie o diretorio /etc/customization com o comando <mkdir /etc/customization/>
+5- Crie o diretorio /etc/customization com o comando <mkdir /etc/customization/>
 
-6-Execute <cp -r /tmp/customization/zorin_corporate_configs-main/* /etc/customization/>
+6- Execute <cp -r /tmp/customization/zorin_corporate_configs-main/* /etc/customization/>
 
-7-Mude o caminho com <cd /etc/customization/>
+7- Mude o caminho com <cd /etc/customization/>
 
-8-Inicie a customização com o comando: <bash main.sh 2 2>&1 | tee /tmp/main.log; mv /tmp/main.log /var/log/customization-persist/main.log>
+8- Inicie a customização com o comando: <bash main.sh 2 2>&1 | tee /tmp/main.log; mv /tmp/main.log /var/log/customization-persist/main.log>
 
-9-O comando acima realiza a customização conforme a documentação e copia o log para persistencia e auditoria.  
+9- O comando acima realiza a customização conforme a documentação e copia o log para persistencia e auditoria.  
 
-10-Os comandos dentro de < > devem ser digitados ou copiados e colados no terminal.
+10- Os comandos dentro de < > devem ser digitados ou copiados e colados no terminal.
 
-11-Leia as orientações do item 12-. Para otimizar os processos acima de forma segura e automatizada, selecione o texto abaixo, copie e cole (COMO UMA ÚNICA LINHA) no terminal linux de uma VM:
+11- Para otimizar os processos acima de forma segura e automatizada, selecione o texto abaixo, copie e cole (COMO UMA ÚNICA LINHA) no terminal linux de uma VM:
 
     sudo apt install git -y && rm -Rf /tmp/zorin_corporate_configs && git clone https://github.com/arthur-aida/zorin_corporate_configs.git /tmp/zorin_corporate_configs/ && sudo bash -c "mkdir -p /etc/customization/ /var/log/customization-persist/ && cp -r /tmp/zorin_corporate_configs/* /etc/customization/ && cd /etc/customization/ && chmod +x main.sh && ./main.sh 2 2>&1 | tee /var/log/customization-persist/main.log"
 
-12-POR SEGURANÇA INSPECIONE O CONTEÚDO DE TODOS OS SCRIPTS ANTES DE EXECUTAR QUAISQUER DOS COMANDOS ACIMA.
+12- POR SEGURANÇA INSPECIONE O CONTEÚDO DE TODOS OS SCRIPTS ANTES DE EXECUTAR QUAISQUER DOS COMANDOS ACIMA.
 
 NUNCA EXECUTE OU TESTE SCRIPTS DIRETAMENTE EM SUA MÁQUINA DE PRODUÇÃO. Baixe o código localmente (git clone https://github.com/arthur-aida/zorin_corporate_configs.git) ou use as extensões de segurança do próprio GitHub e pesquise como sanitizar o código com os recursos a seguir:
                                                         
