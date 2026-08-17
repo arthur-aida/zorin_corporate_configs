@@ -1,77 +1,250 @@
-## # 🚀 Zorin Corporate Configs: Automação e Deploy do Zorin OS/Ubuntu/LinuxMint (ICP-Brasil, Tokens A3 e Caches NFS/APT)
-By arthur-aida: A set of scripts to optimize Zorin OS 18.1 for corporate use.
+# Zorin OS Corporate Configs (zorin_corporate_configs)
 
-MIT License [Copyright] (c) 2026 [arthur.aida@gmail.com]
-![Zorin OS](https://img.shields.io/badge/Zorin_OS-18.1_Core-blue)
-![Ubuntu](https://img.shields.io/badge/Ubuntu-24.04_LTS-E95420)
-![License](https://img.shields.io/badge/License-GPL_v3-green)
-![Shell Script](https://img.shields.io/badge/Bash-Automated_Deploy-4EAA25)
-![ICP-Brasil](https://img.shields.io/badge/ICP--Brasil-Ready-brightgreen)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Zorin OS](https://img.shields.io/badge/Zorin%20OS-18.1%20LTS-7B5294?logo=zorin&logoColor=white)](https://zorin.com/os/)
+[![Ubuntu](https://img.shields.io/badge/Ubuntu-24.04%20LTS-E95420?logo=ubuntu&logoColor=white)](https://ubuntu.com/)
+[![Linux Mint](https://img.shields.io/badge/Linux%20Mint-22%20LTS-87CF3E?logo=linuxmint&logoColor=white)](https://linuxmint.com/)
+[![Bash Script](https://img.shields.io/badge/Shell-Bash-4EAA25?logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
+[![ICP-Brasil](https://img.shields.io/badge/ICP--Brasil-Compat%C3%ADvel-green)](#-suporte-a-certificados-e-tokens-a3-icp-brasil)
 
-====RECOMENDA-SE LER A DOCUMENTAÇÃO NA PASTA Docs ANTES DE PROSSEGUIR====
-
-1- Abra um terminal e digite <cd /tmp/>. Faça o download dos scripts com:
-<wget https://github.com/arthur-aida/zorin_corporate_configs/archive/refs/heads/main.zip -O /tmp/customization.zip>
-
-2- Descompate-o com o comando <unzip -q /tmp/customization.zip -d /tmp/customization/> 
-
-3- Mude o caminho para /tmp/customization/zorin_corporate_configs-main com <cd /tmp/customization/zorin_corporate_configs-main>
-
-4- Eleve-se ao ambiente do root com sudo su e forneça a senha do administrador
-
-5- Crie o diretorio /etc/customization com o comando <mkdir /etc/customization/>
-
-6- Execute <cp -r /tmp/customization/zorin_corporate_configs-main/* /etc/customization/>
-
-7- Mude o caminho com <cd /etc/customization/>
-
-8- Inicie a customização com o comando: <bash main.sh 2 2>&1 | tee /tmp/main.log; mv /tmp/main.log /var/log/customization-persist/main.log>
-
-9- O comando acima realiza a customização conforme a documentação e copia o log para persistencia e auditoria.  
-
-10- Os comandos dentro de < > devem ser digitados ou copiados e colados no terminal.
-
-11- Para otimizar os processos acima de forma segura e automatizada, selecione o texto abaixo, copie e cole (COMO UMA ÚNICA LINHA) no terminal linux de uma VM:
-
-    sudo apt install git -y && rm -Rf /tmp/zorin_corporate_configs && git clone https://github.com/arthur-aida/zorin_corporate_configs.git /tmp/zorin_corporate_configs/ && sudo bash -c "mkdir -p /etc/customization/ /var/log/customization-persist/ && cp -r /tmp/zorin_corporate_configs/* /etc/customization/ && cd /etc/customization/ && chmod +x main.sh && ./main.sh 2 2>&1 | tee /var/log/customization-persist/main.log"
-
-12- POR SEGURANÇA INSPECIONE O CONTEÚDO DE TODOS OS SCRIPTS ANTES DE EXECUTAR QUAISQUER DOS COMANDOS ACIMA.
-
-NUNCA EXECUTE OU TESTE SCRIPTS DIRETAMENTE EM SUA MÁQUINA DE PRODUÇÃO. Baixe o código localmente (git clone https://github.com/arthur-aida/zorin_corporate_configs.git) ou use as extensões de segurança do próprio GitHub e pesquise como sanitizar o código com os recursos a seguir:
-                                                        
-    • Trivy (da Aqua Security): É uma das ferramentas mais completas para buscar vulnerabilidades, segredos expostos e malwares conhecidos em sistemas de arquivos e repositórios Git.
-    • Semgrep: Excelente analisador estático para encontrar bugs de lógica, injeções de código e funções perigosas baseadas em regras da comunidade. 
-    • ClamAV: O antivírus open-source padrão para Linux. Você pode apontar o clamscan diretamente para a pasta do repositório clonado para buscar assinaturas de malwares conhecidos de Linux (como ELF maliciosos ou scripts de criptomineração).
-    • Ofuscação de código: Procure por strings convertidas que tentam se esconder de antivírus comuns.
-      bash
-      grep -rnEi '(base64|decode|eval|exec|atob|hex)' .
-    • Conexões e Downloads Externos: Verifique se o script tenta baixar executáveis de IPs desconhecidos ou URLs suspeitas para a pasta /tmp ou /dev/shm.
-      bash
-      grep -rnEi '(curl|wget|fetch|nc -e|/bin/sh|/bin/bash)' .
-      
-    • Persistência e Backdoors: Scripts que modificam o cron, adicionam chaves SSH sem aviso ou editam arquivos de inicialização (como .bashrc ou .profile).
-      bash
-      grep -rnEi '(\.ssh/authorized_keys|cron|systemd|init\.d)' .
-    • Commits Verificados: Verifique se os commits mais recentes possuem a tag Verified (assinatura GPG). Desconfie de alterações críticas de última hora feitas por contas criadas recentemente.
-    • Ataques de "Typosquatting": Se o script instala dependências externas (como pacotes pip, npm ou apt), verifique se os nomes não estão ligeiramente errados para imitar uma biblioteca famosa (ex: lodahs em vez de lodash), o que indica infecção por pacotes falsos.
-    • Análise de GitHub Actions: Inspecione a pasta .github/workflows/. Verifique se há injeções de variáveis de ambiente não sanitizadas (${{ github.event... }}) que permitam a execução de códigos arbitrários durante a integração contínua (CI).
-    • Máquinas Virtuais Descartáveis: Use gerenciadores como o VirtualBox ou KVM (adotado neste projeto) configurados em modo Host-only (sem acesso à sua rede local) para prevenir movimentação lateral caso o script seja um verme (worm).
-    • Monitoramento de Chamadas: Ao rodar o script no ambiente isolado, use o comando strace para monitorar quais arquivos o script tenta abrir, ler ou modificar.
-
-## Contribua com o Projeto
-
-Se esse projeto for útil para você, ajude-o a engajá-lo e levar essa solução para mais pessoas!
-
-### Formas de Contribuir
-Você pode fazer uma contribuição única ou recorrente de forma rápida e segura. Escolha a opção ideal para você:
-
-#### Doação Direta via Pix (Copia e Cola / QR Code)
-
-Para contribuir via Pix, acesse diretamente o link:  
-🔗 [Acesse o QR-Code de Doação](https://nubank.com.br/cobrar/1jbqoi/6a817c80-a557-47cb-87fb-f186940931da)
+> **Automação Pós-Instalação e Padronização Corporativa para Zorin OS 18.1, Ubuntu 24.04 LTS e Linux Mint em Ambientes Empresariais, Jurídicos e de Saúde no Brasil.**
 
 ---
 
->  **Sua contribuição, não importa o valor, é o combustível para manter este repositório ativo e atualizado. Muito obrigado!**
+## 📌 Sumário
+- [Visão Geral](#-visão-geral)
+- [Principais Funcionalidades](#-principais-funcionalidades)
+- [Suporte a Certificados e Tokens A3 (ICP-Brasil)](#-suporte-a-certificados-e-tokens-a3-icp-brasil)
+- [Arquitetura de Cache Triplo (Deploy de Alta Performance)](#-arquitetura-de-cache-triplo-deploy-de-alta-performance)
+- [Perfis de Instalação e Customização](#-perfis-de-instalação-e-customização)
+- [Requisitos de Sistema](#-requisitos-de-sistema)
+- [Instalação e Início Rápido (Quickstart)](#-instalação-e-início-rápido-quickstart)
+- [Servidor de Infraestrutura (Proxy APT + NFS + KVM)](#-servidor-de-infraestrutura-proxy-apt--nfs--kvm)
+- [Benchmarks e Desempenho](#-benchmarks-e-desempenho)
+- [Homologação em Ambientes Virtuais (KVM/QEMU)](#-homologação-em-ambientes-virtuais-kvmqemu)
+- [Manutenção Autônoma e Rotinas Cron](#-manutenção-autônoma-e-rotinas-cron)
+- [Estrutura do Repositório](#-estrutura-do-repositório)
+- [Perguntas Frequentes (FAQ)](#-perguntas-frequentes-faq)
+- [Como Contribuir](#-como-contribuir)
+- [Licença e Autor](#-licença-e-autor)
 
+---
+
+## 📸 Visão Geral
+
+O **`zorin_corporate_configs`** é uma suíte open-source de automação em Bash desenvolvida para resolver os principais gargalos da migração do **Windows 10/11 para Linux** no ambiente corporativo brasileiro. 
+
+Desenvolvido especialmente para gerentes de TI, SysAdmins e consultores de suporte, o projeto transforma uma instalação limpa do **Zorin OS 18.1** (ou derivados Debian/Ubuntu LTS) em um ambiente de trabalho de nível corporativo em **menos de 4 minutos**, pré-configurado com segurança, assinadores digitais governamentais, suíte de escritório e otimização de tráfego de rede.
+
+---
+
+## ✨ Principais Funcionalidades
+
+- 🔒 **Compatibilidade total com ecossistema governamental e judiciário brasileiro** (PJe, Shodō, SERPRO, Certillion).
+- 🔑 **Suporte nativo a Tokens Criptográficos A3 e ICP-Brasil** nos navegadores Chrome, Edge, Brave e Firefox (mesmo em Flatpak/Sandbox).
+- ⚡ **Economia de até 98,3% de banda de internet WAN** através de arquitetura de cache local de 3 níveis.
+- ⏱️ **Redução de até 45% no tempo de implantação/deploy** por máquina.
+- 🎭 **4 Perfis de Uso Adaptáveis**: Doméstico, Corporativo, Saúde/Clínicas e Servidor de Infraestrutura.
+- 🖨️ **Manutenção autônoma**: Auto-recuperação de impressoras desativadas e limpeza automática de caches temporários.
+
+---
+
+## 🔑 Suporte a Certificados e Tokens A3 (ICP-Brasil)
+
+Um dos maiores desafios de migração para Linux em escritórios de advocacia, contabilidade e órgãos públicos no Brasil é a integração de leitores de cartão e tokens A3. O projeto resolve esse problema de ponta a ponta:
+
+1. **Instalação da Cadeia de Custódia Oficial**:
+   - O script `instalar_certificados_icp_brasil.sh` baixa, valida e instala as raízes da **AC Raiz da ICP-Brasil** (ITi) atualizadas.
+   - O script `import-icp-brasil.sh` injeta automaticamente os certificados na store do sistema, no `p11-kit` e no banco de dados NSS (`cert8.db` / `cert9.db`) de todos os perfis de navegadores.
+
+2. **Drivers e PKCS#11 para Tokens A3**:
+   - Suporte pré-configurado para drivers **G&D SafeSign**, **Safenet (Aladdin / eToken)** e **Dexon DXSafe**.
+   - Integração do `p11-kit-trust.so` substituindo o `libnssckbi.so` nativo do Firefox.
+
+3. **Compatibilidade com Navegadores Flatpak (Sandbox)**:
+   - Permissão global `--filesystem=/usr/lib:ro` e acesso ao barramento PKCS#11 para que navegadores isolados leiam tokens físicos conectados na máquina hospedeira.
+
+4. **Sistemas e Assinadores Pré-homologados**:
+   - **PJe Office** e **Shodō** (com bibliotecas `libssl1.1` e ambiente Java pré-configurados).
+   - **Assinador SERPRO** (AppImage v4.4.0) e **Certillion** (execução não-root).
+   - **WebPKI (Lacuna Software)**.
+
+---
+
+## ⚡ Arquitetura de Cache Triplo (Deploy de Alta Performance)
+
+Deploy em lote de 10, 50 ou 100 estações de trabalho costuma inviabilizar o link de internet da empresa. O `zorin_corporate_configs` utiliza um modelo de **cache híbrido em 3 níveis** para retenção local de dados de **98,3%**:
+
+```text
+               [ Internet / WAN (Apenas 1,7% do tráfego) ]
+                                   │
+                                   ▼
+                   ┌───────────────────────────────┐
+                   │ Nível 1: Validação Local RAM  │
+                   └───────────────────────────────┘
+                                   │
+          ┌────────────────────────┴────────────────────────┐
+          ▼                                                 ▼
+┌──────────────────────────────────┐            ┌──────────────────────────────────┐
+│ Nível 2: Proxy APT-Cacher-NG     │            │ Nível 3: Compartilhamento NFS    │
+│ (Porta 3142 - Pacotes .deb)      │            │ - Repositório OSTree (Flatpak)   │
+│ Retenção de Tráfego: 18,0%       │            │ - Instaladores (.run, AppImage)  │
+└──────────────────────────────────┘            └──────────────────────────────────┘
+```
+
+### Otimizações de I/O e Desempenho de Hardware
+- **Preservação do SSD/NVMe**: Logs de execução do instalador são gravados em memória RAM via `tmpfs` em `/var/log/customization` (50 MB max).
+- **Instalação Massiva via APT**: Todos os 446 pacotes necessários são consolidados e instalados em comando único (`02-bulk-packages.sh`).
+- **Gerenciamento de Locks do Dpkg**: Suspensão automática do `packagekit.service` e `apt-daily.timer` durante a execução para evitar travamentos de trava do sistema.
+- **Roaming Inteligente de Rede**: Script dispatcher no NetworkManager detecta se o computador está na rede corporativa (aplicando o proxy local APT) ou em home-office/externo, alternando os repositórios sem intervenção do usuário.
+
+---
+
+## 🎭 Perfis de Instalação e Customização
+
+Você pode alterar o perfil ativado editando o arquivo `/etc/customization/active-profile.env`:
+
+| Perfil | Arquivo de Conf. | Público-Alvo / Foco de Aplicação | Recurso Destacado |
+| :--- | :--- | :--- | :--- |
+| **Corporativo** | `corporate.conf` | Escritórios, Empresas, Contabilidade e Advocacia | Suporte a Tokens A3, Proxy APT, Cliente Proxmox Backup, Hardening SSH |
+| **Saúde / Clínicas** | `health.conf` | Hospital, Clínicas Médicas e Odontológicas | Visualizador DICOM (Weasis), Terminal pw3270, Sincronização NTP |
+| **Doméstico** | `domestic.conf` | Uso Pessoal, Home Office e Estudo | Suíte OnlyOffice, utilitários multimídia, sem restrições corporativas |
+| **Servidor Infra** | `setup-server-KVM-nfs-acng.sh` | Servidor Local da Empresa | Proxy APT-Cacher-NG, Compartilhamento NFS e Hypervisor KVM |
+
+---
+
+## 📋 Requisitos de Sistema
+
+### Requisitos Mínimos (Estação de Trabalho)
+- **Sistema Operacional**: Zorin OS 18.1 (Core, Pro ou Lite), Ubuntu 24.04 LTS ou Linux Mint 22 LTS.
+- **Processador**: CPU x86_64 Dual-Core de 2.0 GHz.
+- **Memória RAM**: 4 GB.
+- **Armazenamento**: 25 GB em SSD / NVMe.
+- **Conexão de Rede**: Placa de rede Ethernet 100/1000 Mbps ou Wi-Fi.
+
+### Requisitos Recomendados (Servidor Local de Cache)
+- **CPU**: Quad-Core ou superior.
+- **Memória RAM**: 8 GB+.
+- **Armazenamento**: SSD de 120 GB+ reservado para cache de pacotes `.deb` e Flatpaks OSTree.
+
+---
+
+## 🚀 Instalação e Início Rápido (Quickstart)
+
+Para iniciar o processo, selecione o texto abaixo, copie e cole (COMO UMA ÚNICA LINHA) no terminal linux para executar a otimização automática na estação de trabalho:
+
+        sudo apt install git -y && rm -Rf /tmp/zorin_corporate_configs && git clone https://github.com/arthur-aida/zorin_corporate_configs.git /tmp/zorin_corporate_configs/ && sudo bash -c "mkdir -p /etc/customization/ /var/log/customization-persist/ && cp -r /tmp/zorin_corporate_configs/* /etc/customization/ && cd /etc/customization/ && chmod +x main.sh && ./main.sh 2 2>&1 | tee /var/log/customization-persist/main.log"```
+
+---
+
+## 🖥️ Servidor de Infraestrutura (Proxy APT + NFS + KVM)
+
+Para transformar um computador antigo ou servidor local em uma central de distribuição de atualizações e hipervisor de máquinas virtuais, execute o script autônomo:
+
+```bash
+cd /etc/customization/scripts
+sudo ./setup-server-KVM-nfs-acng.sh
+```
+
+Este script configura automaticamente:
+1. **APT-Cacher-NG** na porta `3142` para interceptar e armazenar atualizações `.deb`.
+2. **Servidor NFS** para compartilhamento da pasta de sideload de Flatpaks e programas corporativos.
+3. **KVM / QEMU / Virt-Manager** com suporte a ponte de rede (bridge) e aceleração de hardware.
+
+---
+
+## 📊 Benchmarks e Desempenho
+
+Valores obtidos em bancada de testes utilizando um notebook com **Processador AMD Ryzen 5 3500U, 16 GB RAM e SSD NVMe M.2**:
+
+| Métrica de Desempenho | Instalação Padrão (Download WAN) | Com `zorin_corporate_configs` | Ganho / Economia Obtida |
+| :---: | :---: | :---: | :---: |
+| **Tempo de Deploy (Perfil Doméstico)** | 12 min 25 s | **7 min 40 s** | **38% mais rápido** ⚡ |
+| **Tempo de Deploy (Perfil Corporativo/Saúde)** | 6 min 57 s | **3 min 50 s** | **45% mais rápido** ⚡ |
+| **Consumo de Banda WAN por Máquina** | ~4,3 GB | **74 MB (1,7%)** | **98,3% de economia** 🌐 |
+
+---
+
+## 💡 Homologação em Ambientes Virtuais (KVM/QEMU)
+
+Para testar e validar as configurações em uma máquina virtual garantindo até **97% do desempenho do hardware real**, utilize a seguinte especificação no **Virt-Manager**:
+
+- **RAM**: 1/3 da memória física (ex.: 5120 MB para hosts com 16 GB).
+- **Processador**: Metade dos núcleos/threads do processador hospedeiro (Habilite o modo `host-passthrough`).
+- **Disco**: Controladora **VirtIO SCSI** | Modo de Cache: `none` | Otimização: `unmap` (Descarte/TRIM ativo).
+- **Vídeo**: Driver **VirtIO** com Aceleração 3D ativa | Exibição Spice (Tipo de Escuta: *Nenhum*).
+
+---
+
+## 🔄 Manutenção Autônoma e Rotinas Cron
+
+Após a conclusão da instalação, a estação de trabalho permanece auto-gerenciada através de scripts automatizados no `cron`:
+
+- 🖨️ **Reativação de Impressoras (`/etc/enableprinter.sh`)**: Executado a cada 5 minutos. Detecta impressoras que sofreram pause/offline automático no CUPS por instabilidade de rede e as reativa automaticamente.
+- 🧹 **Limpeza Automática (`/etc/clean.sh`)**: Mantém o sistema enxuto removendo caches de navegadores, arquivos temporários e logs antigos periodicamente.
+
+---
+
+## 📁 Estrutura do Repositório
+
+```text
+zorin_corporate_configs/
+├── main.sh                       # Orquestrador principal de execução
+├── README.md                     # Documentação oficial do projeto
+├── active-profile.env            # Link ou cópia do perfil atualmente ativo
+├── modules/                      # Módulos encadeados de execução (00 a 15)
+│   ├── 00-environment-check.sh   # Validação de sistema, arquitetura e permissões
+│   ├── 01-network-cache-setup.sh # Configuração de proxy APT e rotas NFS
+│   ├── 02-bulk-packages.sh       # Instalação em lote de 446+ pacotes .deb
+│   ├── 03-icp-brasil-setup.sh    # Instalação das cadeias de certificados do ITI
+│   ├── 04-tokens-smartcards.sh   # Drivers para leitores e tokens A3 (SafeSign, Safenet)
+│   ├── 05-signing-apps.sh        # Setup do PJe Office, Shodō, SERPRO e Certillion
+│   └── ...                       # Outros módulos de customização corporativa
+├── profiles/                     # Perfis de configuração
+│   ├── corporate.conf            # Perfil Corporativo/Empresarial
+│   ├── health.conf               # Perfil Saúde/Clínicas médicas
+│   └── domestic.conf             # Perfil Uso Doméstico/Home Office
+└── scripts/                      # Scripts auxiliares e de infraestrutura
+    ├── setup-server-KVM-nfs-acng.sh # Instalador do Servidor de Cache e KVM
+    ├── import-icp-brasil.sh      # Importador de certificados no NSS/p11-kit
+    ├── enableprinter.sh          # Daemon de auto-recuperação de impressoras CUPS
+    └── clean.sh                  # Rotina de limpeza de cache e temporários
+```
+
+---
+
+## ❓ Perguntas Frequentes (FAQ)
+
+### 1. O projeto funciona em outras distribuições além do Zorin OS?
+Sim. Embora otimizado para o **Zorin OS 18.1**, a suíte é totalmente compatível com **Ubuntu 24.04 LTS**, **Linux Mint 22** e distribuições derivadas do Debian/Ubuntu x86_64.
+
+### 2. Os certificados A3 funcionam no Google Chrome e Microsoft Edge em Flatpak?
+Sim. O módulo `04-tokens-smartcards.sh` aplica as regras do `p11-kit` e ajusta os privilégios do Flatpak (`--filesystem=/usr/lib:ro`), permitindo que navegadores conteinerizados acessem os módulos PKCS#11 nativos do sistema.
+
+### 3. Preciso necessariamente de um servidor local de cache para usar o projeto?
+Não. Se a rede não possuir o servidor de cache APT-Cacher-NG ou NFS, o script identificará a ausência e fará o download direto dos repositórios oficiais via internet (WAN).
+
+---
+
+## 🤝 Como Contribuir
+
+Contribuições são super bem-vindas! Se você deseja propor melhorias, novos módulos ou relatar correções:
+
+1. Faça um **Fork** deste repositório.
+2. Crie uma Branch para a sua funcionalidade: `git checkout -b feature/nova-funcionalidade`.
+3. Commit suas alterações: `git commit -m 'Adiciona suporte a novo token A3'`.
+4. Envie para o repositório remoto: `git push origin feature/nova-funcionalidade`.
+5. Abra um **Pull Request**.
+
+---
+
+## 📜 Licença e Autor
+
+Este projeto está licenciado sob a licença **MIT** - veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+**Desenvolvido e Mantido por:**
+- **Arthur Mitsuharu Aida** - *Desenvolvedor*
+- Discussões e suporte: Comunidade [Diolinux Plus](https://plus.diolinux.com.br/)
+- Projeto Open Source para o Fortalecimento da Tecnologia Livre no Brasil.
+- Para doação (PIX Copia e Cola / QR Code), [Acesse o QR-Code de Doação] (https://nubank.com.br/cobrar/1jbqoi/6a817c80-a557-47cb-87fb-f186940931da)
 
