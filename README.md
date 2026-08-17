@@ -1,8 +1,7 @@
 ## # 🚀 Zorin Corporate Configs: Automação e Deploy do Zorin OS/Ubuntu/LinuxMint (ICP-Brasil, Tokens A3 e Caches NFS/APT)
 By arthur-aida: A set of scripts to optimize Zorin OS 18.1 for corporate use.
 
-MIT License
-![Copyright] (c) 2026 [arthur.aida@gmail.com]
+MIT License [Copyright] (c) 2026 [arthur.aida@gmail.com]
 ![Zorin OS](https://img.shields.io/badge/Zorin_OS-18.1_Core-blue)
 ![Ubuntu](https://img.shields.io/badge/Ubuntu-24.04_LTS-E95420)
 ![License](https://img.shields.io/badge/License-GPL_v3-green)
