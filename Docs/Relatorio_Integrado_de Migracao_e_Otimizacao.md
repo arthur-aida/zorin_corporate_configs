@@ -1,6 +1,4 @@
-**RELATÓRIO INTEGRADO DE MIGRAÇÃO E**
-
-> **OTIMIZAÇÃO DE SISTEMAS**
+## **RELATÓRIO INTEGRADO DE MIGRAÇÃO E OTIMIZAÇÃO DE SISTEMAS**
 
 **Apresentação Geral:** Este documento consolida três relatórios independentes, porém interligados por
 
