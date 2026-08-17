@@ -246,5 +246,5 @@ Este projeto está licenciado sob a licença **MIT** - veja o arquivo [LICENSE](
 - **Arthur Mitsuharu Aida** - *Desenvolvedor*
 - Discussões e suporte: Comunidade [Diolinux Plus](https://plus.diolinux.com.br/)
 - Projeto Open Source para o Fortalecimento da Tecnologia Livre no Brasil.
-- Para doação (PIX Copia e Cola / QR Code), [Acesse o QR-Code de Doação] (https://nubank.com.br/cobrar/1jbqoi/6a817c80-a557-47cb-87fb-f186940931da)
+- [Para doação acesse o QR-Code de Doação](https://nubank.com.br/cobrar/1jbqoi/6a817c80-a557-47cb-87fb-f186940931da)
 
