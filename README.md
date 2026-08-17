@@ -143,7 +143,7 @@ sudo apt install git -y && rm -Rf /tmp/zorin_corporate_configs && git clone http
 Para transformar um computador antigo ou servidor local em uma central de distribuição de atualizações e hipervisor de máquinas virtuais, execute o script autônomo:
 
 ```bash
-sudo apt install git -y && rm -Rf /tmp/zorin_corporate_configs && git clone https://github.com/arthur-aida/zorin_corporate_configs.git /tmp/zorin_corporate_configs/ && sudo bash -c "mkdir -p /etc/customization/ /var/log/customization-persist/ && cp -r /tmp/zorin_corporate_configs/* /etc/customization/ && cd /etc/customization/scripts && chmod +x ./setup-server-KVM-nfs-acng.sh && ./setup-server-KVM-nfs-acng.sh"
+sudo apt install git -y && sudo rm -Rf /tmp/zorin_corporate_configs && git clone https://github.com/arthur-aida/zorin_corporate_configs.git /tmp/zorin_corporate_configs/ && sudo bash -c "mkdir -p /etc/customization/ /var/log/customization-persist/ && cp -r /tmp/zorin_corporate_configs/* /etc/customization/ && cd /etc/customization/scripts && chmod +x ./setup-server-KVM-nfs-acng.sh && ./setup-server-KVM-nfs-acng.sh"
 ```
 
 Este script configura automaticamente:
