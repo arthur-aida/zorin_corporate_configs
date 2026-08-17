@@ -34,7 +34,7 @@
 
 O **`zorin_corporate_configs`** é uma suíte open-source de automação em Bash desenvolvida para resolver os principais gargalos da migração do **Windows 10/11 para Linux** no ambiente corporativo brasileiro. 
 
-Desenvolvido especialmente para gerentes de TI, SysAdmins e consultores de suporte, o projeto transforma uma instalação limpa do **Zorin OS 18.1** (ou derivados Debian/Ubuntu LTS) em um ambiente de trabalho de nível corporativo em **menos de 4 minutos**, pré-configurado com segurança, assinadores digitais governamentais, suíte de escritório e otimização de tráfego de rede.
+Desenvolvido especialmente para gerentes de TI, SysAdmins e consultores de suporte, o projeto transforma uma instalação limpa do **Zorin OS 18.1** (ou derivados Debian/Ubuntu LTS) em um ambiente de trabalho de nível corporativo em **poucos minutos**, pré-configurado com segurança, assinadores digitais governamentais, suíte de escritório e otimização de tráfego de rede.
 
 ---
 
@@ -44,7 +44,7 @@ Desenvolvido especialmente para gerentes de TI, SysAdmins e consultores de supor
 - 🔑 **Suporte nativo a Tokens Criptográficos A3 e ICP-Brasil** nos navegadores Chrome, Edge, Brave e Firefox (mesmo em Flatpak/Sandbox).
 - ⚡ **Economia de até 98,3% de banda de internet WAN** através de arquitetura de cache local de 3 níveis.
 - ⏱️ **Redução de até 45% no tempo de implantação/deploy** por máquina.
-- 🎭 **4 Perfis de Uso Adaptáveis**: Doméstico, Corporativo, Saúde/Clínicas e Servidor de Infraestrutura.
+- 🎭 **3 Perfis de Uso Adaptáveis**: Doméstico, Corporativo e Saúde/Clínicas. Provê o servidor de Infraestrutura.
 - 🖨️ **Manutenção autônoma**: Auto-recuperação de impressoras desativadas e limpeza automática de caches temporários.
 
 ---
@@ -80,7 +80,7 @@ Deploy em lote de 10, 50 ou 100 estações de trabalho costuma inviabilizar o li
                                    │
                                    ▼
                    ┌───────────────────────────────┐
-                   │ Nível 1: Validação Local RAM  │
+                   │ Nível 1: Validação Local      │
                    └───────────────────────────────┘
                                    │
           ┌────────────────────────┴────────────────────────┐
@@ -94,8 +94,8 @@ Deploy em lote de 10, 50 ou 100 estações de trabalho costuma inviabilizar o li
 
 ### Otimizações de I/O e Desempenho de Hardware
 - **Preservação do SSD/NVMe**: Logs de execução do instalador são gravados em memória RAM via `tmpfs` em `/var/log/customization` (50 MB max).
-- **Instalação Massiva via APT**: Todos os 446 pacotes necessários são consolidados e instalados em comando único (`02-bulk-packages.sh`).
-- **Gerenciamento de Locks do Dpkg**: Suspensão automática do `packagekit.service` e `apt-daily.timer` durante a execução para evitar travamentos de trava do sistema.
+- **Instalação massiva via APT**: Todos os pacotes necessários são consolidados e instalados em comando único (`02-bulk-packages.sh`).
+- **Gerenciamento de locks do ppkg**: Suspensão automática do `packagekit.service` e `apt-daily.timer` durante a execução para evitar travamentos de trava do sistema.
 - **Roaming Inteligente de Rede**: Script dispatcher no NetworkManager detecta se o computador está na rede corporativa (aplicando o proxy local APT) ou em home-office/externo, alternando os repositórios sem intervenção do usuário.
 
 ---
@@ -116,7 +116,7 @@ Você pode alterar o perfil ativado editando o arquivo `/etc/customization/activ
 ## 📋 Requisitos de Sistema
 
 ### Requisitos Mínimos (Estação de Trabalho)
-- **Sistema Operacional**: Zorin OS 18.1 (Core, Pro ou Lite), Ubuntu 24.04 LTS ou Linux Mint 22 LTS.
+- **Sistema Operacional**: Zorin OS 18.1 (Core, Pro ou Lite), Ubuntu 24.04 LTS ou Linux Mint 22.X LTS.
 - **Processador**: CPU x86_64 Dual-Core de 2.0 GHz.
 - **Memória RAM**: 4 GB.
 - **Armazenamento**: 25 GB em SSD / NVMe.
@@ -216,7 +216,7 @@ zorin_corporate_configs/
 ## ❓ Perguntas Frequentes (FAQ)
 
 ### 1. O projeto funciona em outras distribuições além do Zorin OS?
-Sim. Embora otimizado para o **Zorin OS 18.1**, a suíte é totalmente compatível com **Ubuntu 24.04 LTS**, **Linux Mint 22** e distribuições derivadas do Debian/Ubuntu x86_64.
+Sim. Embora otimizado para o **Zorin OS 18.1**, a suíte é totalmente compatível com **Ubuntu 24.04 LTS**, **Linux Mint 22**. Pode ser adaptado para distribuições derivadas do Debian x86_64.
 
 ### 2. Os certificados A3 funcionam no Google Chrome e Microsoft Edge em Flatpak?
 Sim. O módulo `04-tokens-smartcards.sh` aplica as regras do `p11-kit` e ajusta os privilégios do Flatpak (`--filesystem=/usr/lib:ro`), permitindo que navegadores conteinerizados acessem os módulos PKCS#11 nativos do sistema.
