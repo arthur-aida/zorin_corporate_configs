@@ -2,7 +2,12 @@
 By arthur-aida: A set of scripts to optimize Zorin OS 18.1 for corporate use.
 
 MIT License
-Copyright (c) 2026 [arthur.aida@gmail.com]
+![Copyright] (c) 2026 [arthur.aida@gmail.com]
+![Zorin OS](https://img.shields.io/badge/Zorin_OS-18.1_Core-blue)
+![Ubuntu](https://img.shields.io/badge/Ubuntu-24.04_LTS-E95420)
+![License](https://img.shields.io/badge/License-GPL_v3-green)
+![Shell Script](https://img.shields.io/badge/Bash-Automated_Deploy-4EAA25)
+![ICP-Brasil](https://img.shields.io/badge/ICP--Brasil-Ready-brightgreen)
 
 ====RECOMENDA-SE LER A DOCUMENTAÇÃO NA PASTA Docs ANTES DE PROSSEGUIR====
 
