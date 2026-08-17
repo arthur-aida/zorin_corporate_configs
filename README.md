@@ -34,7 +34,7 @@
 
 O **`zorin_corporate_configs`** é uma suíte open-source de automação em Bash desenvolvida para resolver os principais gargalos da migração do **Windows 10/11 para Linux** no ambiente corporativo brasileiro. 
 
-Desenvolvido especialmente para gerentes de TI, SysAdmins e consultores de suporte, o projeto transforma uma instalação limpa do **Zorin OS 18.1** (ou derivados Debian/Ubuntu LTS) em um ambiente de trabalho de nível corporativo em **poucos minutos**, pré-configurado com segurança, assinadores digitais governamentais, suíte de escritório e otimização de tráfego de rede.
+Desenvolvido especialmente para gerentes de TI, SysAdmins e consultores de suporte, o projeto transforma uma instalação limpa do **Zorin OS 18.1** (ou derivados do Ubuntu LTS) em um ambiente de trabalho de nível corporativo em **poucos minutos**, pré-configurado com segurança, assinadores digitais governamentais, suíte de escritório e otimização de tráfego de rede.
 
 ---
 
