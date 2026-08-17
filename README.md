@@ -216,7 +216,7 @@ zorin_corporate_configs/
 ## ❓ Perguntas Frequentes (FAQ)
 
 ### 1. O projeto funciona em outras distribuições além do Zorin OS?
-Sim. Embora otimizado para o **Zorin OS 18.1**, a suíte é totalmente compatível com **Ubuntu 24.04 LTS**, **Linux Mint 22**. Pode ser adaptado para distribuições derivadas do Debian x86_64.
+Sim. Embora otimizado para o **Zorin OS 18.1**, a suíte é totalmente compatível com **Ubuntu 24.04 LTS**, **Linux Mint 22**. Pode ser adaptado para distribuições derivadas do Debian x86_64 (não testado).
 
 ### 2. Os certificados A3 funcionam no Google Chrome e Microsoft Edge em Flatpak?
 Sim. O módulo `04-tokens-smartcards.sh` aplica as regras do `p11-kit` e ajusta os privilégios do Flatpak (`--filesystem=/usr/lib:ro`), permitindo que navegadores conteinerizados acessem os módulos PKCS#11 nativos do sistema.
