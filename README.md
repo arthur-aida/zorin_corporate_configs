@@ -135,8 +135,8 @@ Você pode alterar o perfil ativado editando o arquivo `/etc/customization/activ
 
 ####  Preparar desktops: MÓVEIS, HOME OFFICE e CORPORATIVOS 
 
-Para iniciar o processo, selecione o texto abaixo, copie e cole (COMO UMA ÚNICA LINHA) no terminal linux para executar a otimização automática na estação de trabalho:
-
+Para iniciar o processo, clique no ícone Copiar e Cole no terminal linux para executar a otimização automática na estação de trabalho.
+📋
 ```bash
 sudo apt install git -y && rm -Rf /tmp/zorin_corporate_configs && git clone https://github.com/arthur-aida/zorin_corporate_configs.git /tmp/zorin_corporate_configs/ && sudo bash -c "mkdir -p /etc/customization/ /var/log/customization-persist/ && cp -r /tmp/zorin_corporate_configs/* /etc/customization/ && cd /etc/customization/ && chmod +x main.sh && ./main.sh 2 2>&1 | tee /var/log/customization-persist/main.log"
 ```
@@ -144,7 +144,7 @@ sudo apt install git -y && rm -Rf /tmp/zorin_corporate_configs && git clone http
 #### Servidor de Infraestrutura (Servidores: Proxy APT + NFS + KVM-Linux)
 
 Para transformar um computador antigo ou servidor local em uma central de distribuição de atualizações e hipervisor de máquinas virtuais, execute o script autônomo:
-
+📋
 ```bash
 sudo apt install git -y && sudo rm -Rf /tmp/zorin_corporate_configs && git clone https://github.com/arthur-aida/zorin_corporate_configs.git /tmp/zorin_corporate_configs/ && sudo bash -c "mkdir -p /etc/customization/ /var/log/customization-persist/ && cp -r /tmp/zorin_corporate_configs/* /etc/customization/ && cd /etc/customization/scripts && chmod +x ./setup-server-KVM-nfs-acng.sh && ./setup-server-KVM-nfs-acng.sh"
 ```
