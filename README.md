@@ -1,5 +1,5 @@
-## Zorin OS Corporate Configs (zorin_corporate_configs)
---
+# Zorin OS Corporate Configs (zorin_corporate_configs)
+
 > **Automação Pós-Instalação e Padronização Corporativa para Zorin OS 18.1, Ubuntu 24.04 LTS e Linux Mint em Ambientes Empresariais, Jurídicos e de Saúde no Brasil.**
 ---
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -8,7 +8,7 @@
 [![Linux Mint](https://img.shields.io/badge/Linux%20Mint-22%20LTS-87CF3E?logo=linuxmint&logoColor=white)](https://linuxmint.com/)
 [![Bash Script](https://img.shields.io/badge/Shell-Bash-4EAA25?logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
 [![ICP-Brasil](https://img.shields.io/badge/ICP--Brasil-Compat%C3%ADvel-green)](#-suporte-a-certificados-e-tokens-a3-icp-brasil)
-### ⚠️ AVISO LEGAL E DE RESPONSABILIDADE
+## ⚠️ AVISO LEGAL E DE RESPONSABILIDADE
 Este projeto é uma ferramenta de automação open-source distribuída gratuitamente. Embora contenha perfis voltados para os setores de saúde e jurídico, **não possui garantias de funcionamento de qualquer tipo**. 
 
 A alteração de regras do Flatpak (`--filesystem=/usr/lib:ro`) e a automação de drivers PKCS#11 visam a conveniência de uso de tokens A3, mas alteram a superfície de isolamento original do sistema. Certifique-se de testar exaustivamente os módulos em ambiente de homologação (KVM/QEMU) antes de aplicá-los em computadores de produção ou redes corporativas. O uso desta suíte ocorre por sua conta e risco, conforme os termos do Adendo Jurisdicional anexo à licença MIT.
