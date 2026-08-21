@@ -26,7 +26,7 @@ A alteração de regras do Flatpak (`--filesystem=/usr/lib:ro`) e a automação 
 - [Perfis de Instalação e Customização](#-perfis-de-instalação-e-customização)
 - [Requisitos de Sistema](#-requisitos-de-sistema)
 - [Instalação e Início Rápido (Quickstart)](#-instalação-e-início-rápido-quickstart)
-- [Servidor de Infraestrutura (Proxy APT + NFS + KVM)](#-servidor-de-infraestrutura-proxy-apt--nfs--kvm)
+- [Servidor de Infraestrutura (Proxy APT + NFS + KVM)](# Servidor de Infraestrutura (Servidores: Proxy APT + NFS + KVM-Linux))
 - [Benchmarks e Desempenho](#-benchmarks-e-desempenho)
 - [Homologação em Ambientes Virtuais (KVM/QEMU)](#-homologação-em-ambientes-virtuais-kvmqemu)
 - [Manutenção Autônoma e Rotinas Cron](#-manutenção-autônoma-e-rotinas-cron)
