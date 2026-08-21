@@ -1,5 +1,4 @@
 # Zorin OS Corporate Configs (zorin_corporate_configs)
-## 📌 Sumário
 > **Automação Pós-Instalação e Padronização Corporativa para Zorin OS 18.1, Ubuntu 24.04 LTS e Linux Mint em Ambientes Empresariais, Jurídicos e de Saúde no Brasil.**
 ---
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -13,6 +12,7 @@ Este projeto é uma ferramenta de automação open-source distribuída gratuitam
 
 A alteração de regras do Flatpak (`--filesystem=/usr/lib:ro`) e a automação de drivers PKCS#11 visam a conveniência de uso de tokens A3, mas alteram a superfície de isolamento original do sistema. Certifique-se de testar exaustivamente os módulos em ambiente de homologação (KVM/QEMU) antes de aplicá-los em computadores de produção ou redes corporativas. O uso desta suíte ocorre por sua conta e risco, conforme os termos do Adendo Jurisdicional anexo à licença MIT.
 
+## 📌 Sumário
 - [Visão Geral](#-visão-geral)
 - [Principais Funcionalidades](#-principais-funcionalidades)
 - [Suporte a Certificados e Tokens A3 (ICP-Brasil)](#-suporte-a-certificados-e-tokens-a3-icp-brasil)
