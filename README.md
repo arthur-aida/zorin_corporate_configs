@@ -253,6 +253,3 @@ Este projeto está licenciado sob a licença **MIT** - veja o arquivo [LICENSE](
 - Projeto Open Source para o Fortalecimento da Tecnologia Livre no Brasil.
 - Apoio ao Projeto: Para realizar uma doação de caráter estritamente voluntário e espontâneo (sem direito a suporte contratual ou contraprestação de serviços), acesse o [QR-Code](https://nubank.com.br/cobrar/1jbqoi/6a817c80-a557-47cb-87fb-f186940931da).
 
-https://img.shields.io/github/stars/arthur-aida/zorin_corporate_configs?style=social
-https://img.shields.io/twitter/url?style=social&url=https%253A%252F%252Fgithub.com%252Farthur-aida%252Fzorin_corporate_configs
-https://img.shields.io/badge/Compartilhar-LinkedIn-blue
