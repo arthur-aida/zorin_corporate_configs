@@ -19,3 +19,28 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+### ADENDO DE ADEQUAÇÃO JURISDICIONAL (BRASIL) - VERSÃO 2026.2
+
+Este Adendo complementa e integra os termos da licença acima para fins de aplicação, interpretação e execução do Software em território brasileiro ou sob a égide das leis da República Federativa do Brasil.
+
+1. LIMITAÇÃO DA RESPONSABILIDADE CIVIL E EXCLUSÃO DE CONSUMO
+O presente Software é disponibilizado de forma estritamente gratuita, colaborativa e universal, inexistindo qualquer finalidade comercial direta, oferta pública de consumo ou prestação de serviços remunerados por parte do Autor original. Consequentemente:
+a) As partes reconhecem a total inaplicabilidade do Código de Defesa do Consumidor (Lei nº 8.078/1990), visto que não há relação de consumo, figura de fornecedor ou remuneração.
+b) NATUREZA DAS DOAÇÕES: Eventuais doações financeiras voluntárias recebidas pelo Autor (via PIX, QR-Code ou plataformas de terceiros) possuem natureza jurídica de liberalidade pura e simples (Artigo 538 do Código Civil), não configurando contraprestação financeira, pagamento por serviços, venda de produtos ou direito a suporte técnico personalizado, sendo incapazes de descaracterizar a natureza gratuita deste contrato benéfico.
+c) Nos termos do Artigo 392 do Código Civil Brasileiro, tratando-se de contrato benéfico (comodato de direitos/licença gratuita), o Autor responderá única e exclusivamente por dolo devidamente comprovado, ficando isento de qualquer responsabilidade por culpa (seja ela grave, leve ou levíssima), negligência, imperícia, imprudência ou erros no código ("bugs").
+
+2. ISENÇÃO ESPECÍFICA PARA AMBIENTES CRÍTICOS (SAÚDE E JURÍDICO)
+Embora o Software forneça perfis de automação destinados a facilitar a usabilidade em ambientes empresariais, jurídicos e de saúde (como clínicas e hospitais), as partes declaram ciência de que:
+a) A homologação, auditoria de segurança, testes de compatibilidade e implementação em ambientes de produção médica ou forense são de responsabilidade exclusiva dos profissionais de TI e SysAdmins das respectivas instituições.
+b) O Autor não assume qualquer dever de garantia ou responsabilidade civil por atrasos processuais, perda de prazos jurídicos perante o PJe/Tribunais, erros de diagnóstico por falhas em visualizadores DICOM ou indisponibilidade de sistemas de saúde decorrentes do uso desta suíte de scripts (Artigos 402 e 403 do Código Civil).
+
+3. SEGURANÇA DA INFORMAÇÃO E MODIFICAÇÕES DE PRIVILÉGIOS (FLATPAK / TOKENS)
+O usuário está ciente de que os scripts realizam modificações profundas no sistema, incluindo a alteração de permissões de isolamento (*sandbox*) do Flatpak (--filesystem=/usr/lib:ro) e injeção de cadeias de certificados no banco de dados NSS. O usuário assume integralmente os riscos de segurança cibernética decorrentes dessas configurações necessárias para o funcionamento de tokens A3, eximindo o Autor de responsabilidade por eventuais interceptações de dados ou incidentes de segurança.
+
+4. ISENÇÃO POR INDICAÇÕES DE TERCEIROS E SUPORTE COMUNITÁRIO
+A menção a fóruns de discussão externos (como Comunidade Diolinux Plus e Viva o Linux) cumpre papel puramente informativo. O Autor não possui controle editorial, ingerência ou responsabilidade solidária (Artigo 7º, parágrafo único do CDC) sobre quaisquer opiniões, comandos, scripts modificados ou orientações fornecidas por terceiros dentro dessas comunidades.
+
+5. LEGISLAÇÃO APLICÁVEL E FORO DE ELEIÇÃO
+Esta licença e este Adendo serão regidos, interpretados e submetidos exclusivamente às leis da República Federativa do Brasil, em especial à Lei do Software (Lei nº 9.609/1998) e à Lei de Direitos Autorais (Lei nº 9.610/1998).
+Para dirimir quaisquer dúvidas, controvérsias ou litígios decorrentes direta ou indiretamente deste Software, as partes elegem expressamente o Foro da Comarca de [Inserir sua Cidade - UF], com renúncia expressa a qualquer outro, por mais privilegiado que seja.
