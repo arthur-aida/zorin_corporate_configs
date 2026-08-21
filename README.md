@@ -93,7 +93,7 @@ Deploy em lote de 10, 50 ou 100 estações de trabalho costuma inviabilizar o li
 │ Retenção de Tráfego: 18,0%       │            │ - Instaladores (.run, AppImage)  │
 └──────────────────────────────────┘            └──────────────────────────────────┘
 ```
-
+---
 
 ### Otimizações de I/O e Desempenho de Hardware
 - **Preservação do SSD/NVMe**: Logs de execução do instalador são gravados em memória RAM via `tmpfs` em `/var/log/customization` (50 MB max).
@@ -131,7 +131,6 @@ Você pode alterar o perfil ativado editando o arquivo `/etc/customization/activ
 - **Armazenamento**: SSD de 120 GB+ reservado para cache de pacotes `.deb` e Flatpaks OSTree.
 
 ---
-
 ## 🚀 Instalação e Início Rápido (Quickstart)
 
 ### Para iniciar o processo, selecione o texto abaixo, copie e cole (COMO UMA ÚNICA LINHA) no terminal linux para executar a otimização automática na estação de trabalho:
@@ -139,7 +138,6 @@ Você pode alterar o perfil ativado editando o arquivo `/etc/customization/activ
 ```bash
 sudo apt install git -y && rm -Rf /tmp/zorin_corporate_configs && git clone https://github.com/arthur-aida/zorin_corporate_configs.git /tmp/zorin_corporate_configs/ && sudo bash -c "mkdir -p /etc/customization/ /var/log/customization-persist/ && cp -r /tmp/zorin_corporate_configs/* /etc/customization/ && cd /etc/customization/ && chmod +x main.sh && ./main.sh 2 2>&1 | tee /var/log/customization-persist/main.log"
 ```
----
 
 ### Servidor de Infraestrutura (Proxy APT + NFS + KVM)
 
