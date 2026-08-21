@@ -250,7 +250,7 @@ Este projeto está licenciado sob a licença **MIT** - veja o arquivo [LICENSE](
 
 **Desenvolvido e Mantido por:**
 - **Arthur Mitsuharu Aida** - *Desenvolvedor*
-- Discussões Comunitárias: Comunidade  Canais independentes como a Comunidade [Diolinux Plus](https://plus.diolinux.com.br/t/projeto-como-automatizar-o-zorin-os-para-empresas-com-suporte-icp-brasil/83864) e [Viva o Linux](https://www.vivaolinux.com.br/dica/Migracao-do-Windows-para-o-Linux-com-sistemas-corporativos/) (o autor não presta suporte técnico comercial e não se responsabiliza por soluções propostas por terceiros nesses fóruns).
+- Discussões Comunitárias: Canais independentes como a Comunidade [Diolinux Plus](https://plus.diolinux.com.br/t/projeto-como-automatizar-o-zorin-os-para-empresas-com-suporte-icp-brasil/83864) e [Viva o Linux](https://www.vivaolinux.com.br/dica/Migracao-do-Windows-para-o-Linux-com-sistemas-corporativos/) (o autor não presta suporte técnico comercial e não se responsabiliza por soluções propostas por terceiros nesses fóruns).
 - Projeto Open Source para o Fortalecimento da Tecnologia Livre no Brasil.
 - Apoio ao Projeto: Para realizar uma doação de caráter estritamente voluntário e espontâneo (sem direito a suporte contratual ou contraprestação de serviços), acesse o [QR-Code](https://nubank.com.br/cobrar/1jbqoi/6a817c80-a557-47cb-87fb-f186940931da).
 
