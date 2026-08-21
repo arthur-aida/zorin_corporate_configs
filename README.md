@@ -76,8 +76,9 @@ Um dos maiores desafios de migração para Linux em escritórios de advocacia, c
 ## ⚡ Arquitetura de Cache Triplo (Deploy de Alta Performance)
 
 Deploy em lote de 10, 50 ou 100 estações de trabalho costuma inviabilizar o link de internet da empresa. O `zorin_corporate_configs` utiliza um modelo de **cache híbrido em 3 níveis** para retenção local de dados de **98,3%**:
+html
+<div align="center">
 
-```text
                [ Internet / WAN (Apenas 1,7% do tráfego) ]
                                    │
                                    ▼
@@ -92,7 +93,8 @@ Deploy em lote de 10, 50 ou 100 estações de trabalho costuma inviabilizar o li
 │ (Porta 3142 - Pacotes .deb)      │            │ - Repositório OSTree (Flatpak)   │
 │ Retenção de Tráfego: 18,0%       │            │ - Instaladores (.run, AppImage)  │
 └──────────────────────────────────┘            └──────────────────────────────────┘
-```
+</div>
+
 
 ### Otimizações de I/O e Desempenho de Hardware
 - **Preservação do SSD/NVMe**: Logs de execução do instalador são gravados em memória RAM via `tmpfs` em `/var/log/customization` (50 MB max).
