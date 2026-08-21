@@ -108,12 +108,15 @@ Deploy em lote de 10, 50 ou 100 estações de trabalho costuma inviabilizar o li
 │ (Porta 3142 - Pacotes .deb)      │            │ - Repositório OSTree (Flatpak)   │
 │ Retenção de Tráfego: 18,0%       │            │ - Instaladores (.run, AppImage)  │
 └──────────────────────────────────┘            └──────────────────────────────────┘
+```
+
 ---
 
 ### Otimizações de I/O e Desempenho de Hardware
+
 - **Preservação do SSD/NVMe**: Logs de execução do instalador são gravados em memória RAM via `tmpfs` em `/var/log/customization` (50 MB max).
 - **Instalação massiva via APT**: Todos os pacotes necessários são consolidados e instalados em comando único (`02-bulk-packages.sh`).
-- **Gerenciamento de locks do ppkg**: Suspensão automática do `packagekit.service` e `apt-daily.timer` durante a execução para evitar travamentos de trava do sistema.
+- **Gerenciamento de locks do dpkg**: Suspensão automática do `packagekit.service` e `apt-daily.timer` durante a execução para evitar travamentos de trava do sistema.
 - **Roaming Inteligente de Rede**: Script dispatcher no NetworkManager detecta se o computador está na rede corporativa (aplicando o proxy local APT) ou em home-office/externo, alternando os repositórios sem intervenção do usuário.
 
 ---
@@ -146,21 +149,27 @@ Você pode alterar o perfil ativado editando o arquivo `/etc/customization/activ
 - **Armazenamento**: SSD de 120 GB+ reservado para cache de pacotes `.deb` e Flatpaks OSTree.
 
 ---
+
 ## 🚀 Instalação e Início Rápido (Quickstart)
 
-####  Preparar desktops: MÓVEIS, HOME OFFICE e CORPORATIVOS 
+### Preparar desktops: MÓVEIS, HOME OFFICE e CORPORATIVOS
 
-📋Para iniciar o processo, clique no ícone Copiar e Cole no terminal linux para executar a otimização automática na estação de trabalho.
+📋 Para iniciar o processo, clique no ícone Copiar e Cole no terminal linux para executar a otimização automática na estação de trabalho:
+
 ```bash
 sudo apt install git -y && rm -Rf /tmp/zorin_corporate_configs && git clone https://github.com/arthur-aida/zorin_corporate_configs.git /tmp/zorin_corporate_configs/ && sudo bash -c "mkdir -p /etc/customization/ /var/log/customization-persist/ && cp -r /tmp/zorin_corporate_configs/* /etc/customization/ && cd /etc/customization/ && chmod +x main.sh && ./main.sh 2 2>&1 | tee /var/log/customization-persist/main.log"
 ```
 
-#### ⚡ Servidor de Infraestrutura
+---
 
-📋Para transformar um computador antigo ou servidor local em uma central de distribuição de atualizações e hipervisor de máquinas virtuais, execute o script autônomo:
+## ⚡ Servidor de Infraestrutura
+
+📋 Para transformar um computador antigo ou servidor local em uma central de distribuição de atualizações e hipervisor de máquinas virtuais, execute o script autônomo:
+
 ```bash
 sudo apt install git -y && sudo rm -Rf /tmp/zorin_corporate_configs && git clone https://github.com/arthur-aida/zorin_corporate_configs.git /tmp/zorin_corporate_configs/ && sudo bash -c "mkdir -p /etc/customization/ /var/log/customization-persist/ && cp -r /tmp/zorin_corporate_configs/* /etc/customization/ && cd /etc/customization/scripts && chmod +x ./setup-server-KVM-nfs-acng.sh && ./setup-server-KVM-nfs-acng.sh"
 ```
+
 Este script configura automaticamente:
 1. **APT-Cacher-NG** na porta `3142` para interceptar e armazenar atualizações `.deb`.
 2. **Servidor NFS** para compartilhamento da pasta de sideload de Flatpaks e programas corporativos.
