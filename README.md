@@ -1,13 +1,14 @@
 # Migração do Windows para Linux com Zorin OS Corporate Configs (repositório no github zorin_corporate_configs)
 
 > **Automação Pós-Instalação e Padronização Corporativa para Zorin OS 18.1, Ubuntu 24.04 LTS e Linux Mint em Ambientes Empresariais, Jurídicos e de Saúde no Brasil.**
+
 ---
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Zorin OS](https://img.shields.io/badge/Zorin%20OS-18.1%20LTS-7B5294?logo=zorin&logoColor=white)](https://zorin.com/os/)
 [![Ubuntu](https://img.shields.io/badge/Ubuntu-24.04%20LTS-E95420?logo=ubuntu&logoColor=white)](https://ubuntu.com/)
 [![Linux Mint](https://img.shields.io/badge/Linux%20Mint-22%20LTS-87CF3E?logo=linuxmint&logoColor=white)](https://linuxmint.com/)
 [![Bash Script](https://img.shields.io/badge/Shell-Bash-4EAA25?logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
-[![ICP-Brasil](https://img.shields.io/badge/ICP--Brasil-Compat%C3%ADvel-green)](#-suporte-a-certificados-e-tokens-a3-icp-brasil)
+[![ICP-Brasil](https://img.shields.io/badge/ICP--Brasil-Compat%C3%ADvel-green)](#suporte-a-certificados-e-tokens-a3-icp-brasil)
 [![Linguagem Principal](https://img.shields.io/github/languages/top/arthur-aida/zorin_corporate_configs)](https://github.com/arthur-aida/zorin_corporate_configs)
 [![Estrelas no GitHub](https://img.shields.io/github/stars/arthur-aida/zorin_corporate_configs)](https://github.com/arthur-aida/zorin_corporate_configs/stargazers)
 [![Issues Abertas](https://img.shields.io/github/issues/arthur-aida/zorin_corporate_configs)](https://github.com/arthur-aida/zorin_corporate_configs/issues)
@@ -19,22 +20,25 @@ Este projeto é uma ferramenta de automação open-source distribuída gratuitam
 A alteração de regras do Flatpak (`--filesystem=/usr/lib:ro`) e a automação de drivers PKCS#11 visam a conveniência de uso de tokens A3, mas alteram a superfície de isolamento original do sistema. Certifique-se de testar exaustivamente os módulos em ambiente de homologação (KVM/QEMU) antes de aplicá-los em computadores de produção ou redes corporativas. O uso desta suíte ocorre por sua conta e risco, conforme os termos do Adendo Jurisdicional anexo à licença MIT.
 
 ## 📌 Sumário
-- [Visão Geral](#-visão-geral)
-- [Principais Funcionalidades](#-principais-funcionalidades)
-- [Suporte a Certificados e Tokens A3 (ICP-Brasil)](#-suporte-a-certificados-e-tokens-a3-icp-brasil)
-- [Arquitetura de Cache Triplo (Deploy de Alta Performance)](#-arquitetura-de-cache-triplo-deploy-de-alta-performance)
-- [Perfis de Instalação e Customização](#-perfis-de-instalação-e-customização)
-- [Requisitos de Sistema](#-requisitos-de-sistema)
-- [Instalação e Início Rápido (Quickstart)](#-instalação-e-início-rápido-quickstart)
-- [Servidor de Infraestrutura](#-servidor-de-infraestrutura)
-- [Benchmarks e Desempenho](#-benchmarks-e-desempenho)
-- [Homologação em Ambientes Virtuais (KVM/QEMU)](#-homologação-em-ambientes-virtuais-kvmqemu)
-- [Manutenção Autônoma e Rotinas Cron](#-manutenção-autônoma-e-rotinas-cron)
-- [Estrutura do Repositório](#-estrutura-do-repositório)
-- [Perguntas Frequentes (FAQ)](#-perguntas-frequentes-faq)
-- [Como Contribuir](#-como-contribuir)
-- [Licença e Autor](#-licença-e-autor)
+
+- [Visão Geral](#visao-geral)
+- [Principais Funcionalidades](#principais-funcionalidades)
+- [Suporte a Certificados e Tokens A3 (ICP-Brasil)](#suporte-a-certificados-e-tokens-a3-icp-brasil)
+- [Arquitetura de Cache Triplo (Deploy de Alta Performance)](#arquitetura-de-cache-triplo-deploy-de-alta-performance)
+- [Perfis de Instalação e Customização](#perfis-de-instalacao-e-customizacao)
+- [Instalação e Início Rápido (Quickstart)](#instalacao-e-inicio-rapido-quickstart)
+- [Servidor de Infraestrutura](#servidor-de-infraestrutura)
+- [Requisitos de Sistema](#requisitos-de-sistema)
+- [Benchmarks e Desempenho](#benchmarks-e-desempenho)
+- [Homologação em Ambientes Virtuais (KVM/QEMU)](#homologacao-em-ambientes-virtuais-kvmqemu)
+- [Manutenção Autônoma e Rotinas Cron](#manutencao-autonoma-e-rotinas-cron)
+- [Estrutura do Repositório](#estrutura-do-repositorio)
+- [Perguntas Frequentes (FAQ)](#perguntas-frequentes-faq)
+- [Como Contribuir](#como-contribuir)
+- [Licença e Autor](#licenca-e-autor)
+
 ---
+
 
 ## 📸 Visão Geral
 
