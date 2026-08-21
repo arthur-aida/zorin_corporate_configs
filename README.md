@@ -1,7 +1,9 @@
 # Migração do Windows para Linux com Zorin OS Corporate Configs (repositório no github zorin_corporate_configs)
 
 > **Automação Pós-Instalação e Padronização Corporativa para Zorin OS 18.1, Ubuntu 24.04 LTS e Linux Mint em Ambientes Empresariais, Jurídicos e de Saúde no Brasil.**
+
 ---
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Zorin OS](https://img.shields.io/badge/Zorin%20OS-18.1%20LTS-7B5294?logo=zorin&logoColor=white)](https://zorin.com/os/)
 [![Ubuntu](https://img.shields.io/badge/Ubuntu-24.04%20LTS-E95420?logo=ubuntu&logoColor=white)](https://ubuntu.com/)
@@ -14,30 +16,34 @@
 [![Último Commit](https://img.shields.io/github/last-commit/arthur-aida/zorin_corporate_configs)](https://github.com/arthur-aida/zorin_corporate_configs/commits/main)
 
 ## ⚠️ AVISO LEGAL E DE RESPONSABILIDADE
+
 Este projeto é uma ferramenta de automação open-source distribuída gratuitamente. Embora contenha perfis voltados para os setores de saúde e jurídico, **não possui garantias de funcionamento de qualquer tipo**. 
 
 A alteração de regras do Flatpak (`--filesystem=/usr/lib:ro`) e a automação de drivers PKCS#11 visam a conveniência de uso de tokens A3, mas alteram a superfície de isolamento original do sistema. Certifique-se de testar exaustivamente os módulos em ambiente de homologação (KVM/QEMU) antes de aplicá-los em computadores de produção ou redes corporativas. O uso desta suíte ocorre por sua conta e risco, conforme os termos do Adendo Jurisdicional anexo à licença MIT.
 
+---
+
 ## 📌 Sumário
-- [⚠️ AVISO LEGAL E DE RESPONSABILIDADE](#aviso-legal-e-de-responsabilidade)
-- [📸 Visão Geral](#visão-geral)
-- [✨ Principais Funcionalidades](#principais-funcionalidades)
-- [🔑 Suporte a Certificados e Tokens A3 (ICP-Brasil)](#suporte-a-certificados-e-tokens-a3-icp-brasil)
-- [⚡ Arquitetura de Cache Triplo (Deploy de Alta Performance)](#arquitetura-de-cache-triplo-deploy-de-alta-performance)
+
+- [⚠️ AVISO LEGAL E DE RESPONSABILIDADE](#️-aviso-legal-e-de-responsabilidade)
+- [📸 Visão Geral](#-visão-geral)
+- [✨ Principais Funcionalidades](#-principais-funcionalidades)
+- [🔑 Suporte a Certificados e Tokens A3 (ICP-Brasil)](#-suporte-a-certificados-e-tokens-a3-icp-brasil)
+- [⚡ Arquitetura de Cache Triplo (Deploy de Alta Performance)](#-arquitetura-de-cache-triplo-deploy-de-alta-performance)
   - [Otimizações de I/O e Desempenho de Hardware](#otimizações-de-io-e-desempenho-de-hardware)
-- [🎭 Perfis de Instalação e Customização](#perfis-de-instalação-e-customização)
-- [📋 Requisitos de Sistema](#requisitos-de-sistema)
+- [🎭 Perfis de Instalação e Customização](#-perfis-de-instalação-e-customização)
+- [📋 Requisitos de Sistema](#-requisitos-de-sistema)
   - [Requisitos Mínimos (Estação de Trabalho)](#requisitos-mínimos-estação-de-trabalho)
   - [Requisitos Recomendados (Servidor Local de Cache)](#requisitos-recomendados-servidor-local-de-cache)
-- [🚀 Instalação e Início Rápido (Quickstart)](#instalação-e-início-rápido-quickstart)
-- [⚡ Servidor de Infraestrutura](#servidor-de-infraestrutura)
-- [📊 Benchmarks e Desempenho](#benchmarks-e-desempenho)
-- [💡 Homologação em Ambientes Virtuais (KVM/QEMU)](#homologação-em-ambientes-virtuais-kvmqemu)
-- [🔄 Manutenção Autônoma e Rotinas Cron](#manutenção-autônoma-e-rotinas-cron)
-- [📁 Estrutura do Repositório](#estrutura-do-repositório)
-- [❓ Perguntas Frequentes (FAQ)](#perguntas-frequentes-faq)
-- [🤝 Como Contribuir](#como-contribuir)
-- [📜 Licença e Autor](#licença-e-autor)
+- [🚀 Instalação e Início Rápido (Quickstart)](#-instalação-e-início-rápido-quickstart)
+- [⚡ Servidor de Infraestrutura](#-servidor-de-infraestrutura)
+- [📊 Benchmarks e Desempenho](#-benchmarks-e-desempenho)
+- [💡 Homologação em Ambientes Virtuais (KVM/QEMU)](#-homologação-em-ambientes-virtuais-kvmqemu)
+- [🔄 Manutenção Autônoma e Rotinas Cron](#-manutenção-autônoma-e-rotinas-cron)
+- [📁 Estrutura do Repositório](#-estrutura-do-repositório)
+- [❓ Perguntas Frequentes (FAQ)](#-perguntas-frequentes-faq)
+- [🤝 Como Contribuir](#-como-contribuir)
+- [📜 Licença e Autor](#-licença-e-autor)
 
 ---
 
@@ -85,6 +91,7 @@ Um dos maiores desafios de migração para Linux em escritórios de advocacia, c
 ## ⚡ Arquitetura de Cache Triplo (Deploy de Alta Performance)
 
 Deploy em lote de 10, 50 ou 100 estações de trabalho costuma inviabilizar o link de internet da empresa. O `zorin_corporate_configs` utiliza um modelo de **cache híbrido em 3 níveis** para retenção local de dados de **98,3%**:
+
 ```txt
 
                [ Internet / WAN (Apenas 1,7% do tráfego) ]
@@ -101,7 +108,6 @@ Deploy em lote de 10, 50 ou 100 estações de trabalho costuma inviabilizar o li
 │ (Porta 3142 - Pacotes .deb)      │            │ - Repositório OSTree (Flatpak)   │
 │ Retenção de Tráfego: 18,0%       │            │ - Instaladores (.run, AppImage)  │
 └──────────────────────────────────┘            └──────────────────────────────────┘
-```
 ---
 
 ### Otimizações de I/O e Desempenho de Hardware
