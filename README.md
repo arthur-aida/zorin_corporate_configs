@@ -1,7 +1,6 @@
 # Migração do Windows para Linux com Zorin OS Corporate Configs (repositório no github zorin_corporate_configs)
 
 > **Automação Pós-Instalação e Padronização Corporativa para Zorin OS 18.1, Ubuntu 24.04 LTS e Linux Mint em Ambientes Empresariais, Jurídicos e de Saúde no Brasil.**
-
 ---
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Zorin OS](https://img.shields.io/badge/Zorin%20OS-18.1%20LTS-7B5294?logo=zorin&logoColor=white)](https://zorin.com/os/)
@@ -20,25 +19,27 @@ Este projeto é uma ferramenta de automação open-source distribuída gratuitam
 A alteração de regras do Flatpak (`--filesystem=/usr/lib:ro`) e a automação de drivers PKCS#11 visam a conveniência de uso de tokens A3, mas alteram a superfície de isolamento original do sistema. Certifique-se de testar exaustivamente os módulos em ambiente de homologação (KVM/QEMU) antes de aplicá-los em computadores de produção ou redes corporativas. O uso desta suíte ocorre por sua conta e risco, conforme os termos do Adendo Jurisdicional anexo à licença MIT.
 
 ## 📌 Sumário
-
-- [Visão Geral](#visao-geral)
-- [Principais Funcionalidades](#principais-funcionalidades)
-- [Suporte a Certificados e Tokens A3 (ICP-Brasil)](#suporte-a-certificados-e-tokens-a3-icp-brasil)
-- [Arquitetura de Cache Triplo (Deploy de Alta Performance)](#arquitetura-de-cache-triplo-deploy-de-alta-performance)
-- [Perfis de Instalação e Customização](#perfis-de-instalacao-e-customizacao)
-- [Instalação e Início Rápido (Quickstart)](#instalacao-e-inicio-rapido-quickstart)
+- [⚠️ AVISO LEGAL E DE RESPONSABILIDADE](#aviso-legal-e-de-responsabilidade)
+- [📸 Visão Geral](#visão-geral)
+- [✨ Principais Funcionalidades](#principais-funcionalidades)
+- [🔑 Suporte a Certificados e Tokens A3 (ICP-Brasil)](#suporte-a-certificados-e-tokens-a3-icp-brasil)
+- [⚡ Arquitetura de Cache Triplo (Deploy de Alta Performance)](#arquitetura-de-cache-triplo-deploy-de-alta-performance)
+  - [Otimizações de I/O e Desempenho de Hardware](#otimizações-de-io-e-desempenho-de-hardware)
+- [🎭 Perfis de Instalação e Customização](#perfis-de-instalação-e-customização)
+- [📋 Requisitos de Sistema](#requisitos-de-sistema)
+  - [Requisitos Mínimos (Estação de Trabalho)](#requisitos-mínimos-estação-de-trabalho)
+  - [Requisitos Recomendados (Servidor Local de Cache)](#requisitos-recomendados-servidor-local-de-cache)
+- [🚀 Instalação e Início Rápido (Quickstart)](#instalação-e-início-rápido-quickstart)
 - [Servidor de Infraestrutura](#servidor-de-infraestrutura)
-- [Requisitos de Sistema](#requisitos-de-sistema)
-- [Benchmarks e Desempenho](#benchmarks-e-desempenho)
-- [Homologação em Ambientes Virtuais (KVM/QEMU)](#homologacao-em-ambientes-virtuais-kvmqemu)
-- [Manutenção Autônoma e Rotinas Cron](#manutencao-autonoma-e-rotinas-cron)
-- [Estrutura do Repositório](#estrutura-do-repositorio)
-- [Perguntas Frequentes (FAQ)](#perguntas-frequentes-faq)
-- [Como Contribuir](#como-contribuir)
-- [Licença e Autor](#licenca-e-autor)
+- [📊 Benchmarks e Desempenho](#benchmarks-e-desempenho)
+- [💡 Homologação em Ambientes Virtuais (KVM/QEMU)](#homologação-em-ambientes-virtuais-kvmqemu)
+- [🔄 Manutenção Autônoma e Rotinas Cron](#manutenção-autônoma-e-rotinas-cron)
+- [📁 Estrutura do Repositório](#estrutura-do-repositório)
+- [❓ Perguntas Frequentes (FAQ)](#perguntas-frequentes-faq)
+- [🤝 Como Contribuir](#como-contribuir)
+- [📜 Licença e Autor](#licença-e-autor)
 
 ---
-
 
 ## 📸 Visão Geral
 
@@ -148,7 +149,7 @@ Você pode alterar o perfil ativado editando o arquivo `/etc/customization/activ
 sudo apt install git -y && rm -Rf /tmp/zorin_corporate_configs && git clone https://github.com/arthur-aida/zorin_corporate_configs.git /tmp/zorin_corporate_configs/ && sudo bash -c "mkdir -p /etc/customization/ /var/log/customization-persist/ && cp -r /tmp/zorin_corporate_configs/* /etc/customization/ && cd /etc/customization/ && chmod +x main.sh && ./main.sh 2 2>&1 | tee /var/log/customization-persist/main.log"
 ```
 
-## Servidor de Infraestrutura
+#### Servidor de Infraestrutura
 
 📋Para transformar um computador antigo ou servidor local em uma central de distribuição de atualizações e hipervisor de máquinas virtuais, execute o script autônomo:
 ```bash
@@ -255,4 +256,3 @@ Este projeto está licenciado sob a licença **MIT** - veja o arquivo [LICENSE](
 - Discussões Comunitárias: Canais independentes como a Comunidade [Diolinux Plus](https://plus.diolinux.com.br/t/projeto-como-automatizar-o-zorin-os-para-empresas-com-suporte-icp-brasil/83864) e [Viva o Linux](https://www.vivaolinux.com.br/dica/Migracao-do-Windows-para-o-Linux-com-sistemas-corporativos/) (o autor não presta suporte técnico comercial e não se responsabiliza por soluções propostas por terceiros nesses fóruns).
 - Projeto Open Source para o Fortalecimento da Tecnologia Livre no Brasil.
 - Apoio ao Projeto: Para realizar uma doação de caráter estritamente voluntário e espontâneo (sem direito a suporte contratual ou contraprestação de serviços), acesse o [QR-Code](https://nubank.com.br/cobrar/1jbqoi/6a817c80-a557-47cb-87fb-f186940931da).
-
