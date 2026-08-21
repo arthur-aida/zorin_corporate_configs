@@ -8,6 +8,13 @@
 [![Linux Mint](https://img.shields.io/badge/Linux%20Mint-22%20LTS-87CF3E?logo=linuxmint&logoColor=white)](https://linuxmint.com/)
 [![Bash Script](https://img.shields.io/badge/Shell-Bash-4EAA25?logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
 [![ICP-Brasil](https://img.shields.io/badge/ICP--Brasil-Compat%C3%ADvel-green)](#-suporte-a-certificados-e-tokens-a3-icp-brasil)
+
+[![Licença MIT](https://img.shields.io/badge/Licença-MIT-blue.svg)](LICENSE)
+[![Linguagem Principal](https://img.shields.io/github/languages/top/arthur-aida/zorin_corporate_configs)](https://github.com/arthur-aida/zorin_corporate_configs)
+[![Estrelas no GitHub](https://img.shields.io/github/stars/arthur-aida/zorin_corporate_configs)](https://github.com/arthur-aida/zorin_corporate_configs/stargazers)
+[![Issues Abertas](https://img.shields.io/github/issues/arthur-aida/zorin_corporate_configs)](https://github.com/arthur-aida/zorin_corporate_configs/issues)
+[![Último Commit](https://img.shields.io/github/last-commit/arthur-aida/zorin_corporate_configs)](https://github.com/arthur-aida/zorin_corporate_configs/commits/main)
+
 ## ⚠️ AVISO LEGAL E DE RESPONSABILIDADE
 Este projeto é uma ferramenta de automação open-source distribuída gratuitamente. Embora contenha perfis voltados para os setores de saúde e jurídico, **não possui garantias de funcionamento de qualquer tipo**. 
 
