@@ -26,7 +26,7 @@ A alteração de regras do Flatpak (`--filesystem=/usr/lib:ro`) e a automação 
 - [Perfis de Instalação e Customização](#-perfis-de-instalação-e-customização)
 - [Requisitos de Sistema](#-requisitos-de-sistema)
 - [Instalação e Início Rápido (Quickstart)](#-instalação-e-início-rápido-quickstart)
-- [Servidor de Infraestrutura (Servidores: Proxy APT + NFS + KVM-Linux))](# Servidor de Infraestrutura (Servidores: Proxy APT + NFS + KVM-Linux))
+- [Servidor de Infraestrutura](#-servidor-de-infraestrutura)
 - [Benchmarks e Desempenho](#-benchmarks-e-desempenho)
 - [Homologação em Ambientes Virtuais (KVM/QEMU)](#-homologação-em-ambientes-virtuais-kvmqemu)
 - [Manutenção Autônoma e Rotinas Cron](#-manutenção-autônoma-e-rotinas-cron)
@@ -34,7 +34,6 @@ A alteração de regras do Flatpak (`--filesystem=/usr/lib:ro`) e a automação 
 - [Perguntas Frequentes (FAQ)](#-perguntas-frequentes-faq)
 - [Como Contribuir](#-como-contribuir)
 - [Licença e Autor](#-licença-e-autor)
-
 ---
 
 ## 📸 Visão Geral
@@ -145,7 +144,7 @@ Você pode alterar o perfil ativado editando o arquivo `/etc/customization/activ
 sudo apt install git -y && rm -Rf /tmp/zorin_corporate_configs && git clone https://github.com/arthur-aida/zorin_corporate_configs.git /tmp/zorin_corporate_configs/ && sudo bash -c "mkdir -p /etc/customization/ /var/log/customization-persist/ && cp -r /tmp/zorin_corporate_configs/* /etc/customization/ && cd /etc/customization/ && chmod +x main.sh && ./main.sh 2 2>&1 | tee /var/log/customization-persist/main.log"
 ```
 
-## Servidor de Infraestrutura (Servidores: Proxy APT + NFS + KVM-Linux)
+## Servidor de Infraestrutura
 
 📋Para transformar um computador antigo ou servidor local em uma central de distribuição de atualizações e hipervisor de máquinas virtuais, execute o script autônomo:
 ```bash
