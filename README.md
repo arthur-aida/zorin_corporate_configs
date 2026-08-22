@@ -1,7 +1,6 @@
 # Migração do Windows para Linux com Zorin OS Corporate Configs (repositório no github zorin_corporate_configs)
 
-> **Automação Pós-Instalação e Padronização Corporativa para Zorin OS 18.1, Ubuntu 24.04 LTS e Linux Mint em Ambientes Empresariais, Jurídicos e de Saúde no Brasil.**
-
+> **Zorin Corporate Configs – Automação pós-instalação para Zorin OS, Ubuntu e Linux Mint com suporte a ICP-Brasil.**
 ---
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -14,10 +13,11 @@
 [![Estrelas no GitHub](https://img.shields.io/github/stars/arthur-aida/zorin_corporate_configs)](https://github.com/arthur-aida/zorin_corporate_configs/stargazers)
 [![Issues Abertas](https://img.shields.io/github/issues/arthur-aida/zorin_corporate_configs)](https://github.com/arthur-aida/zorin_corporate_configs/issues)
 [![Último Commit](https://img.shields.io/github/last-commit/arthur-aida/zorin_corporate_configs)](https://github.com/arthur-aida/zorin_corporate_configs/commits/main)
-
+![GitHub release](https://img.shields.io/github/v/release/arthur-aida/zorin_corporate_configs)
 ## ⚠️ AVISO LEGAL E DE RESPONSABILIDADE
 
-Este projeto é uma ferramenta de automação open-source distribuída gratuitamente. Embora contenha perfis voltados para os setores de saúde e jurídico, **não possui garantias de funcionamento de qualquer tipo**. 
+Este projeto é uma ferramenta de automação open-source distribuída gratuitamente. Embora contenha perfis voltados para os setores de saúde e jurídico, **não possui garantias de funcionamento de qualquer tipo**.
+
 
 A alteração de regras do Flatpak (`--filesystem=/usr/lib:ro`) e a automação de drivers PKCS#11 visam a conveniência de uso de tokens A3, mas alteram a superfície de isolamento original do sistema. Certifique-se de testar exaustivamente os módulos em ambiente de homologação (KVM/QEMU) antes de aplicá-los em computadores de produção ou redes corporativas. O uso desta suíte ocorre por sua conta e risco, conforme os termos do Adendo Jurisdicional anexo à licença MIT.
 
@@ -52,7 +52,6 @@ A alteração de regras do Flatpak (`--filesystem=/usr/lib:ro`) e a automação 
 O **`zorin_corporate_configs`** é uma suíte open-source de automação em Bash desenvolvida para resolver os principais gargalos da migração do **Windows 10/11 para Linux** no ambiente corporativo brasileiro. 
 
 Desenvolvido especialmente para gerentes de TI, SysAdmins e consultores de suporte, o projeto transforma uma instalação limpa do **Zorin OS 18.1** (ou derivados do Ubuntu LTS como o Linux Mint 22.X) em um ambiente de trabalho de nível corporativo em poucos minutos, pré-configurado com segurança, assinadores digitais governamentais, suíte de escritório e otimização de tráfego de rede.
-
 ---
 
 ## ✨ Principais Funcionalidades
@@ -67,8 +66,7 @@ Desenvolvido especialmente para gerentes de TI, SysAdmins e consultores de supor
 ---
 
 ## 🔑 Suporte a Certificados e Tokens A3 (ICP-Brasil)
-
-Um dos maiores desafios de migração para Linux em escritórios de advocacia, contabilidade e órgãos públicos no Brasil é a integração de leitores de cartão e tokens A3. O projeto resolve esse problema de ponta a ponta:
+Um dos maiores desafios de migração para Linux em escritórios de advocacia, clínicas, contabilidade e órgãos públicos no Brasil é a integração de leitores de cartão e tokens A3. O projeto resolve esse problema de ponta a ponta:
 
 1. **Instalação da Cadeia de Custódia Oficial**:
    - O script `instalar_certificados_icp_brasil.sh` baixa, valida e instala as raízes da **AC Raiz da ICP-Brasil** (ITi) atualizadas.
