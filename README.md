@@ -259,7 +259,7 @@ Contribuições são super bem-vindas! Se você deseja propor melhorias, novos m
 3. Commit suas alterações: `git commit -m 'Adiciona suporte a novo token A3'`.
 4. Envie para o repositório remoto: `git push origin feature/nova-funcionalidade`.
 5. Abra um **Pull Request**.
-
+6. A conversão da suite para **Ansible Roles** pode ser a introdução definitiva no ambiente governamental. A suite funciona como uma prova de conceito (PoC), o Ansible Role é a linguagem que os departamentos de TI de grandes órgãos (como Ministérios, Tribunais e Prefeituras) utilizam para garantir que suas redes Linux mantenham o compliance de segurança exigido pela Estratégia de Governo Digital. A conversão do módulo import-icp-brasil.sh e o firefox-manager.sh resolvem 80% do atrito de adoção do usuário final no funcionalismo público brasileiro.
 ---
 
 ## 📜 Licença e Autor
