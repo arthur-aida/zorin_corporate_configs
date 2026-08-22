@@ -31,14 +31,14 @@ da República Federativa do Brasil.
 O presente Software é disponibilizado de forma estritamente gratuita, colaborativa e
 universal, inexistindo qualquer finalidade comercial direta, oferta pública de consumo ou
 prestação de serviços remunerados por parte do Autor original. Consequentemente:
-a) As partes reconhecem a total inaplicabilidade do Código de Defesa do Consumidor 
+   a) As partes reconhecem a total inaplicabilidade do Código de Defesa do Consumidor 
 (Lei nº 8.078/1990), visto que não há relação de consumo, figura de fornecedor ou remuneração.
-b) NATUREZA DAS DOAÇÕES: Eventuais doações financeiras voluntárias recebidas pelo Autor 
+   b) NATUREZA DAS DOAÇÕES: Eventuais doações financeiras voluntárias recebidas pelo Autor 
 (via PIX, QR-Code ou plataformas de terceiros) possuem natureza jurídica de liberalidade
 pura e simples (Artigo 538 do Código Civil), não configurando contraprestação financeira, 
 pagamento por serviços, venda de produtos ou direito a suporte técnico personalizado, 
 sendo incapazes de descaracterizar a natureza gratuita deste contrato benéfico.
-c) Nos termos do Artigo 392 do Código Civil Brasileiro, tratando-se de contrato 
+   c) Nos termos do Artigo 392 do Código Civil Brasileiro, tratando-se de contrato 
 benéfico (comodato de direitos/licença gratuita), o Autor responderá única e 
 exclusivamente por dolo devidamente comprovado, ficando isento de qualquer 
 responsabilidade por culpa (seja ela grave, leve ou levíssima), negligência, 
@@ -48,10 +48,10 @@ imperícia, imprudência ou erros no código ("bugs").
 Embora o Software forneça perfis de automação destinados a facilitar a usabilidade
 em ambientes empresariais, jurídicos e de saúde (como clínicas e hospitais), 
 as partes declaram ciência de que:
-a) A homologação, auditoria de segurança, testes de compatibilidade e
+   a) A homologação, auditoria de segurança, testes de compatibilidade e
 implementação em ambientes de produção médica ou forense são de
 responsabilidade exclusiva dos profissionais de TI e SysAdmins das respectivas instituições.
-b) O Autor não assume qualquer dever de garantia ou responsabilidade 
+   b) O Autor não assume qualquer dever de garantia ou responsabilidade 
 civil por atrasos processuais, perda de prazos jurídicos perante o 
 PJe/Tribunais, erros de diagnóstico por falhas em visualizadores 
 DICOM ou indisponibilidade de sistemas de saúde decorrentes do uso 
