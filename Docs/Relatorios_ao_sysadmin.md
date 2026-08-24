@@ -5,9 +5,9 @@
 *Os números de tráfego e tempo de instalação foram medidos em maio de 2026. Com a evolução dos pacotes e versões, os valores absolutos podem variar, mas a eficiência relativa do cache (superior a 95%) e os ganhos percentuais de tempo (38–45%) se mantêm estáveis.*
 
 Use o memtest para certificar-se da saúde da memória RAM. Para  verificar e certificar os drives de armazenamento como SSDs e HDs no Linux, a escolha ideal depende do tipo de armazenamento: testes intensivos de superfície (leitura/escrita de blocos) são recomendados para HDs, enquanto para SSDs deve-se priorizar a leitura de desgaste de blocos lógicos fornecida pelo SMART para não reduzir a vida útil da memória flash, como sugestão:
-1. **Smartctl** (smartmontools): É o padrão da indústria para ler os dados do protocolo S.M.A.R.T.. Mostra a integridade geral, temperatura, horas de uso e ciclos de gravação (TBW). Ralize um teste curto: sudo smartctl -t short /dev/sdX (X é o identificador do dispositivo, como sda, sdb, sdc ou vda, vdb ou vdc no KVM/QEMU);
+1. **Smartctl** (smartmontools): É o padrão da indústria para ler os dados do protocolo S.M.A.R.T.. Mostra a integridade geral, temperatura, horas de uso e ciclos de gravação (TBW). Realize um teste curto com: sudo smartctl -t short /dev/sdX (X é o identificador do dispositivo, como sda, sdb, sdc ou vda, vdb ou vdc no KVM/QEMU);
 2. **Badblocks**: O melhor para HDs mecânicos, pois realiza um teste de superfície minucioso procurando setores defeituosos (bad sectors). Atenção: Evite usar em SSDs para não causar desgaste desnecessário. Realize o teste com: sudo badblocks -sv /dev/sdX (X é o identificador do dispositivo);
-3. **NVMe-cli**: Ferramenta específica e otimizada para SSDs do tipo NVMe M.2. Execute no terminal: sudo nvme smart-log /dev/nvme0n1 e copie e cole a saida no IA gemini para analise do mesmo.
+3. **NVMe-cli**: Ferramenta específica e otimizada para SSDs do tipo NVMe M.2. Execute no terminal: sudo nvme smart-log /dev/nvme0n1 e copie e cole a saida na IA gemini para analise do resultado.
 
 ### 1.1 Recursos embutidos no sistema preparatório da customização
 
