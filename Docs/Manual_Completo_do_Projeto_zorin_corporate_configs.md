@@ -633,7 +633,7 @@ comando **update-desktop-database** ou simplesmente reiniciar a sessão.
   do Flatpak no servidor para incluir novas versões de aplicativos.
 - **Monitore os logs** – Em caso de falhas,
   verifique **/var/log/customization-persist/main.log** e os logs
-  específicos dos serviços.
+  específicos dos módulos.
 - **Personalize os perfis** conforme a necessidade do seu ambiente – as
   variáveis podem ser estendidas.
 - **Contribua com o projeto** – Relate problemas, sugira melhorias e
